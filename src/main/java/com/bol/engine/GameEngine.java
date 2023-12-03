@@ -23,7 +23,7 @@ public class GameEngine {
         validateTurnRequest(playerIndex, spaceIndex, game);
 
         var stones = pickUpStones(spaceIndex, game.getBoard());
-        var lastInsertedPitIndex = sowStones(stones, playerIndex, spaceIndex, game);
+        var lastInsertedPitIndex = sowStones(playerIndex, stones, spaceIndex, game);
 
         tryStealStones(playerIndex, lastInsertedPitIndex, game);
 
@@ -42,7 +42,7 @@ public class GameEngine {
     private int pickUpStones(int firstIndex, int lastIndex, int[] board) {
         var stones = 0;
         for (var i = firstIndex; i <= lastIndex; i++) {
-            stones += pickUpStones(firstIndex, board);
+            stones += pickUpStones(i, board);
         }
         return stones;
     }
