@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 // TODO: Consider interface
@@ -15,9 +16,9 @@ import java.util.stream.Collectors;
 public class GameEngine {
 
     public GameConfiguration createGame(
-            int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
+            UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     ) {
-        return new GameConfiguration(pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
+        return new GameConfiguration(userId, pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
     }
 
     public void turn(int playerIndex, int spaceIndex, GameConfiguration game) {

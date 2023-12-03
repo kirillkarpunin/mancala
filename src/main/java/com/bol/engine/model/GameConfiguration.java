@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GameConfiguration {
     private static final int NUMBER_OF_PLAYERS = 2;
 
     private final UUID id;
+    private final int pitsPerPlayer;
     private final int spacesPerPlayer;
+    private final int stonesPerPit;
     private final int[] board;
-    private final List<SpaceRange> playerSpaces;
+    private final List<Player> players;
     private final boolean isStealingAllowed;
     private final boolean isMultipleTurnAllowed;
 
@@ -19,42 +22,44 @@ public class GameConfiguration {
     private Integer winnerIndex;
     private GameStatus status;
 
-    public GameConfiguration(int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed) {
+    public GameConfiguration(
+            UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
+    ) {
         // TODO: Consider upper limit as well
         assert pitsPerPlayer > 0;
         assert stonesPerPit > 0;
 
         this.id = UUID.randomUUID();
+        this.pitsPerPlayer = pitsPerPlayer;
         this.spacesPerPlayer = pitsPerPlayer + 1; // Number of spaces = number of pits + one store
-        this.playerSpaces = preparePlayerSpaces(pitsPerPlayer);
-        this.board = prepareBoard(stonesPerPit);
+        this.stonesPerPit = stonesPerPit;
+        this.players = new ArrayList<>();
+        this.board = new int[spacesPerPlayer * NUMBER_OF_PLAYERS];
         this.isStealingAllowed = isStealingAllowed;
         this.isMultipleTurnAllowed = isMultipleTurnAllowed;
 
         this.currentPlayerIndex = 0;
         this.status = GameStatus.WAITING_FOR_PLAYERS;
+
+        addPlayer(userId);
     }
 
-    private List<SpaceRange> preparePlayerSpaces(int pitsPerPlayer) {
-        var playerSpaces = new ArrayList<SpaceRange>();
-
-        for (int i = 0; i < NUMBER_OF_PLAYERS; i++) {
-            var firstPitIndex = i * spacesPerPlayer;
-            var lastPitIndex = firstPitIndex + pitsPerPlayer - 1;
-            var storeIndex = lastPitIndex + 1;
-            var spaceRange = new SpaceRange(firstPitIndex, lastPitIndex, storeIndex);
-            playerSpaces.add(spaceRange);
-        }
-
-        return playerSpaces;
+    public void addPlayer(UUID userId) {
+        var playerIndex = players.size();
+        var firstPitIndex = playerIndex * spacesPerPlayer;
+        var lastPitIndex = firstPitIndex + pitsPerPlayer - 1;
+        var storeIndex = lastPitIndex + 1;
+        var spaceRange = new SpaceRange(firstPitIndex, lastPitIndex, storeIndex);
+        players.add(new Player(userId, spaceRange));
     }
 
-    private int[] prepareBoard(int stonesPerPit) {
-        var board = new int[spacesPerPlayer * NUMBER_OF_PLAYERS];
-        playerSpaces.forEach(
-                range -> Arrays.fill(board, range.firstPitIndex(), range.storeIndex(), stonesPerPit));
-
-        return board;
+    public void initialize() {
+        assert players.size() == NUMBER_OF_PLAYERS;
+        players.forEach(player -> {
+            var range = player.spaceRange();
+            Arrays.fill(board, range.firstPitIndex(), range.storeIndex(), stonesPerPit);
+        });
+        status = GameStatus.ACTIVE;
     }
 
     public UUID getId() {
@@ -83,13 +88,15 @@ public class GameConfiguration {
     }
 
     public List<SpaceRange> getPlayerSpaces() {
-        return playerSpaces;
+        return players.stream()
+                .map(Player::spaceRange)
+                .collect(Collectors.toList());
     }
 
     public List<SpaceRange> getOtherPlayerSpaces(int playerIndex) {
         validatePlayerIndex(playerIndex);
 
-        var spaces = new ArrayList<>(playerSpaces);
+        var spaces = getPlayerSpaces();
         spaces.remove(playerIndex);
         return spaces;
     }
@@ -109,7 +116,7 @@ public class GameConfiguration {
 
     public SpaceRange getPlayerSpaceRange(int playerIndex) {
         validatePlayerIndex(playerIndex);
-        return playerSpaces.get(playerIndex);
+        return players.get(playerIndex).spaceRange();
     }
 
     private static void validatePlayerIndex(int playerIndex) {
@@ -122,7 +129,8 @@ public class GameConfiguration {
 
     public int getOppositeSpaceIndex(int spaceIndex) {
         assert spaceIndex >= 0 && spaceIndex < board.length;
-        var isStoreIndex = playerSpaces.stream()
+        var isStoreIndex = players.stream()
+                .map(Player::spaceRange)
                 .map(SpaceRange::storeIndex)
                 .anyMatch(storeIndex -> storeIndex == spaceIndex);
         if (isStoreIndex) {

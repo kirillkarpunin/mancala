@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,7 +18,7 @@ class GameConfigurationTest {
         var pitsPerPlayer = 3;
         var stonesPerPit = 4;
 
-        var game = new GameConfiguration(pitsPerPlayer, stonesPerPit, true, true);
+        var game = prepareGame(pitsPerPlayer, stonesPerPit);
         var spaceRanges = game.getPlayerSpaces();
         assertEquals(spaceRanges.size(), 2);
 
@@ -40,7 +41,7 @@ class GameConfigurationTest {
     public void shouldValidatePitsPerPlayer(int pitsPerPlayer) {
         assertThrows(
                 AssertionError.class,
-                () -> new GameConfiguration(pitsPerPlayer, 5, true, true)
+                () -> prepareGame(pitsPerPlayer, 5)
         );
     }
 
@@ -49,7 +50,7 @@ class GameConfigurationTest {
     public void shouldValidateStonesPerPit(int stonesPerPit) {
         assertThrows(
                 AssertionError.class,
-                () -> new GameConfiguration(5, stonesPerPit, true, true)
+                () -> prepareGame(5, stonesPerPit)
         );
     }
 
@@ -58,7 +59,7 @@ class GameConfigurationTest {
         var pitsPerPlayer = 3;
         var stonesPerPit = 4;
 
-        var game = new GameConfiguration(pitsPerPlayer, stonesPerPit, true, true);
+        var game = prepareGame(pitsPerPlayer, stonesPerPit);
         var spaceRanges = game.getOtherPlayerSpaces(0);
         assertEquals(spaceRanges.size(), 1);
 
@@ -71,7 +72,7 @@ class GameConfigurationTest {
     @ParameterizedTest(name = "should fail when player index is {0}")
     @ValueSource(ints = {-1, 2})
     public void shouldValidatePlayerIndexWhenGetOtherPlayerSpaces(int playerIndex) {
-        var game = new GameConfiguration(5, 5, true, true);
+        var game = prepareGame(5, 5);
 
         assertThrows(
                 AssertionError.class,
@@ -82,7 +83,7 @@ class GameConfigurationTest {
     @ParameterizedTest(name = "should fail when player index is {0}")
     @ValueSource(ints = {-1, 2})
     public void shouldValidatePlayerIndexWhenSetWinnerIndex(int playerIndex) {
-        var game = new GameConfiguration(5, 5, true, true);
+        var game = prepareGame(5, 5);
 
         assertThrows(
                 AssertionError.class,
@@ -93,7 +94,7 @@ class GameConfigurationTest {
     @ParameterizedTest(name = "should fail when player index is {0}")
     @ValueSource(ints = {-1, 2})
     public void shouldValidatePlayerIndexWhenGetPlayerSpaceRange(int playerIndex) {
-        var game = new GameConfiguration(5, 5, true, true);
+        var game = prepareGame(5, 5);
 
         assertThrows(
                 AssertionError.class,
@@ -103,7 +104,7 @@ class GameConfigurationTest {
 
     @Test
     public void shouldCalculateNextPlayer() {
-        var game = new GameConfiguration(5, 5, true, true);
+        var game = prepareGame(5, 5);
 
         var currentPlayerIndex = game.getCurrentPlayerIndex();
         assertEquals(0, currentPlayerIndex);
@@ -134,7 +135,7 @@ class GameConfigurationTest {
     @ParameterizedTest(name = "opposite index for {0} should be {1}")
     @MethodSource("shouldCalculateOppositeIndexArguments")
     public void shouldCalculateOppositeIndex(int index, int expectedOppositeIndex) {
-        var game = new GameConfiguration(4, 5, true, true);
+        var game = prepareGame(4, 5);
         var oppositeIndex = game.getOppositeSpaceIndex(index);
         assertEquals(expectedOppositeIndex, oppositeIndex);
     }
@@ -142,11 +143,19 @@ class GameConfigurationTest {
     @ParameterizedTest(name = "should fail when space index is {0}")
     @ValueSource(ints = {-1, 4, 9, 10})
     public void shouldValidateSpaceIndexWhenCalculateOppositeIndex(int spaceIndex) {
-        var game = new GameConfiguration(4, 5, true, true);
+        var game = prepareGame(4, 5);
 
         assertThrows(
                 AssertionError.class,
                 () -> game.getOppositeSpaceIndex(spaceIndex)
         );
+    }
+
+    private static GameConfiguration prepareGame(int pitsPerPlayer, int stonesPerPit) {
+        var game = new GameConfiguration(UUID.randomUUID(), pitsPerPlayer, stonesPerPit, true, true);
+        game.addPlayer(UUID.randomUUID());
+        game.initialize();
+
+        return game;
     }
 }

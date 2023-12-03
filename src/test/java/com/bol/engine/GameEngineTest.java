@@ -1,11 +1,14 @@
 package com.bol.engine;
 
 import com.bol.engine.exception.GameEngineException;
+import com.bol.engine.model.GameConfiguration;
 import com.bol.engine.model.GameStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,7 +18,7 @@ class GameEngineTest {
     @EnumSource(value = GameStatus.class, names = "ACTIVE", mode = EnumSource.Mode.EXCLUDE)
     public void shouldFailWhenRequestTurnForNotActiveGame(GameStatus status) {
         var engine = new GameEngine();
-        var game = engine.createGame(5, 5, true, true);
+        var game = prepareGame(engine, 5, 5, true, true);
 
         game.setStatus(status);
         assertThrows(
@@ -24,11 +27,12 @@ class GameEngineTest {
         );
     }
 
+
     @ParameterizedTest(name = "should fail when request turn by player # {0}")
     @ValueSource(ints = {-1, 1, 2})
     public void shouldFailWhenRequestTurnByWrongPlayer(int playerIndex) {
         var engine = new GameEngine();
-        var game = engine.createGame(5, 5, true, true);
+        var game = prepareGame(engine, 5, 5, true, true);
         game.setStatus(GameStatus.ACTIVE);
         assertThrows(
                 GameEngineException.class,
@@ -40,7 +44,7 @@ class GameEngineTest {
     @ValueSource(ints = {-1, 3, 4, 5, 6, 7, 8})
     public void shouldFailWhenRequestTurnWithInvalidSpaceIndex(int spaceIndex) {
         var engine = new GameEngine();
-        var game = engine.createGame(3, 5, true, true);
+        var game = prepareGame(engine, 3, 5, true, true);
         game.setStatus(GameStatus.ACTIVE);
         assertThrows(
                 GameEngineException.class,
@@ -51,7 +55,7 @@ class GameEngineTest {
     @Test
     public void shouldFailWhenRequestTurnWithEmptyPitSpace() {
         var engine = new GameEngine();
-        var game = engine.createGame(3, 5, true, true);
+        var game = prepareGame(engine, 3, 5, true, true);
         game.setStatus(GameStatus.ACTIVE);
 
         var spaceIndex = 0;
@@ -66,7 +70,7 @@ class GameEngineTest {
     @Test
     public void shouldSowStones() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 6, true, true);
+        var game = prepareGame(engine, 4, 6, true, true);
         game.setStatus(GameStatus.ACTIVE);
 
         engine.turn(0, 1, game);
@@ -78,7 +82,7 @@ class GameEngineTest {
     @Test
     public void shouldSkipOtherPlayerStoreWhenSowStones() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 6, true, true);
+        var game = prepareGame(engine, 4, 6, true, true);
         game.setStatus(GameStatus.ACTIVE);
 
         engine.turn(0, 3, game);
@@ -90,7 +94,7 @@ class GameEngineTest {
     @Test
     public void shouldStealWhenFinishTurnInOwnEmptyPit() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 6, true, true);
+        var game = prepareGame(engine, 4, 6, true, true);
         game.setStatus(GameStatus.ACTIVE);
         game.getBoard()[0] = 0;
 
@@ -103,7 +107,7 @@ class GameEngineTest {
     @Test
     public void shouldNotStealWhenItIsNotAllowed() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 6, false, true);
+        var game = prepareGame(engine, 4, 6, false, true);
         game.setStatus(GameStatus.ACTIVE);
         game.getBoard()[0] = 0;
 
@@ -116,7 +120,7 @@ class GameEngineTest {
     @Test
     public void shouldNotStealWhenFinishTurnInOtherPlayerEmptyPit() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 6, true, true);
+        var game = prepareGame(engine, 4, 6, true, true);
         game.setStatus(GameStatus.ACTIVE);
         game.getBoard()[6] = 0;
 
@@ -129,7 +133,7 @@ class GameEngineTest {
     @Test
     public void shouldFinishGameWhenOwnSpaceRowIsEmpty() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 4, true, true);
+        var game = prepareGame(engine, 4, 4, true, true);
         game.setStatus(GameStatus.ACTIVE);
         game.getBoard()[0] = 0;
         game.getBoard()[1] = 0;
@@ -146,7 +150,7 @@ class GameEngineTest {
     @Test
     public void shouldFinishGameWhenOtherSpaceRowIsEmpty() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 4, true, true);
+        var game = prepareGame(engine, 4, 4, true, true);
         game.setStatus(GameStatus.ACTIVE);
         game.getBoard()[2] = 1;
         game.getBoard()[3] = 0;
@@ -166,7 +170,7 @@ class GameEngineTest {
     @Test
     public void shouldHaveAnotherTurnWhenFinishInOwnStore() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 4, true, true);
+        var game = prepareGame(engine, 4, 4, true, true);
         game.setStatus(GameStatus.ACTIVE);
 
         engine.turn(0, 0, game);
@@ -179,7 +183,7 @@ class GameEngineTest {
     @Test
     public void shouldNowHaveAnotherTurnWhenMultipleTurnIsNotAllowed() {
         var engine = new GameEngine();
-        var game = engine.createGame(4, 4, true, false);
+        var game = prepareGame(engine, 4, 4, true, false);
         game.setStatus(GameStatus.ACTIVE);
 
         engine.turn(0, 0, game);
@@ -187,5 +191,13 @@ class GameEngineTest {
         assertArrayEquals(new int[]{0, 5, 5, 5, 1, 4, 4, 4, 4, 0}, game.getBoard());
         assertEquals(1, game.getCurrentPlayerIndex());
         assertEquals(GameStatus.ACTIVE, game.getStatus());
+    }
+
+    private static GameConfiguration prepareGame(GameEngine engine, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed) {
+        var game = engine.createGame(UUID.randomUUID(), pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
+        game.addPlayer(UUID.randomUUID());
+        game.initialize();
+
+        return game;
     }
 }
