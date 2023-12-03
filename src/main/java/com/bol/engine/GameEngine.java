@@ -4,12 +4,14 @@ import com.bol.engine.exception.GameEngineException;
 import com.bol.engine.model.GameConfiguration;
 import com.bol.engine.model.GameStatus;
 import com.bol.engine.model.SpaceRange;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 // TODO: Consider interface
+@Component
 public class GameEngine {
 
     public GameConfiguration createGame(
