@@ -20,6 +20,10 @@ public class GameConfiguration {
     private GameStatus status;
 
     public GameConfiguration(int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed) {
+        // TODO: Consider upper limit as well
+        assert pitsPerPlayer > 0;
+        assert stonesPerPit > 0;
+
         this.id = UUID.randomUUID();
         this.spacesPerPlayer = pitsPerPlayer + 1; // Number of spaces = number of pits + one store
         this.playerSpaces = preparePlayerSpaces(pitsPerPlayer);
@@ -36,7 +40,7 @@ public class GameConfiguration {
 
         for (int i = 0; i < NUMBER_OF_PLAYERS; i++) {
             var firstPitIndex = i * spacesPerPlayer;
-            var lastPitIndex = firstPitIndex + pitsPerPlayer;
+            var lastPitIndex = firstPitIndex + pitsPerPlayer - 1;
             var storeIndex = lastPitIndex + 1;
             var spaceRange = new SpaceRange(firstPitIndex, lastPitIndex, storeIndex);
             playerSpaces.add(spaceRange);
@@ -48,7 +52,7 @@ public class GameConfiguration {
     private int[] prepareBoard(int stonesPerPit) {
         var board = new int[spacesPerPlayer * NUMBER_OF_PLAYERS];
         playerSpaces.forEach(
-                range -> Arrays.fill(board, range.firstPitIndex(), range.lastPitIndex(), stonesPerPit));
+                range -> Arrays.fill(board, range.firstPitIndex(), range.storeIndex(), stonesPerPit));
 
         return board;
     }
@@ -118,6 +122,13 @@ public class GameConfiguration {
 
     public int getOppositeSpaceIndex(int spaceIndex) {
         assert spaceIndex >= 0 && spaceIndex < board.length;
+        var isStoreIndex = playerSpaces.stream()
+                .map(SpaceRange::storeIndex)
+                .anyMatch(storeIndex -> storeIndex == spaceIndex);
+        if (isStoreIndex) {
+            throw new AssertionError("Can't calculate opposite index for store space");
+        }
+
         return board.length - NUMBER_OF_PLAYERS - spaceIndex;
     }
 }
