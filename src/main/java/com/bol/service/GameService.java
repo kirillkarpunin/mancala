@@ -1,7 +1,6 @@
 package com.bol.service;
 
 import com.bol.dto.request.CreateGameDto;
-import com.bol.dto.request.JoinGameDto;
 import com.bol.engine.GameEngine;
 import com.bol.engine.model.GameConfiguration;
 import com.bol.engine.model.GameStatus;
@@ -20,9 +19,9 @@ public class GameService {
         this.gameRepository = gameRepository;
     }
 
-    public GameConfiguration createGame(CreateGameDto body) {
+    public GameConfiguration createGame(UUID userId, CreateGameDto body) {
         var game = gameEngine.createGame(
-                body.userId(),
+                userId,
                 body.pitsPerPlayer(),
                 body.stonesPerSpace(),
                 body.isStealingAllowed(),
@@ -32,7 +31,7 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public GameConfiguration joinGame(UUID gameId, JoinGameDto body) {
+    public GameConfiguration joinGame(UUID userId, UUID gameId) {
         // TODO: Acquire lock
         var game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalStateException("Game is not found: gameId=%s".formatted(gameId)));
@@ -40,7 +39,7 @@ public class GameService {
         if(status != GameStatus.WAITING_FOR_PLAYERS) {
            throw new IllegalStateException("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
-        game.addPlayer(body.userId());
+        game.addPlayer(userId);
         game.initialize();
         gameRepository.save(game);
 

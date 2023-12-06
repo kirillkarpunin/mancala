@@ -27,10 +27,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public boolean isUserExists(UUID userId) {
+        return userRepository.existsById(userId);
+    }
+
     public UserDto registerUser(RegisterDto body) {
         var username = body.username();
         // TODO: Exception handler
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepository.existsByUsername(username)) {
             // TODO: Use different exception class ?
             throw new IllegalStateException("Username is already taken");
         }

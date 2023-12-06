@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
@@ -15,15 +16,33 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<UUID, User> users = new HashMap<>();
 
     @Override
+    public boolean existsById(UUID userId) {
+        assert userId != null;
+        return findBy(user -> user.id().equals(userId)).isPresent();
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        assert username != null;
+        return findByUsername(username).isPresent();
+    }
+
+    @Override
     public Optional<User> findByUsername(String username) {
-        return users.values().stream()
-                .filter(user -> user.name().equals(username))
-                .findFirst();
+        assert username != null;
+        return findBy(user -> user.name().equals(username));
     }
 
     @Override
     public User save(User user) {
+        assert user != null;
         users.put(user.id(), user);
         return user;
+    }
+
+    private Optional<User> findBy(Predicate<User> predicate) {
+        return users.values().stream()
+                .filter(predicate)
+                .findFirst();
     }
 }

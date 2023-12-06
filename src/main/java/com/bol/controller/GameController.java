@@ -1,7 +1,7 @@
 package com.bol.controller;
 
+import com.bol.auth.configuration.converter.JwtAuthenticationToken;
 import com.bol.dto.request.CreateGameDto;
-import com.bol.dto.request.JoinGameDto;
 import com.bol.dto.response.GameDto;
 import com.bol.engine.model.GameConfiguration;
 import com.bol.service.GameService;
@@ -15,8 +15,8 @@ import java.util.UUID;
 
 // TODO: Consider interface
 // TODO: Swagger
-@RequestMapping("/v1/games")
 @RestController
+@RequestMapping("/api/v1/games")
 public class GameController {
 
     private final GameService gameService;
@@ -26,13 +26,15 @@ public class GameController {
     }
 
     @PostMapping
-    public GameDto create(@RequestBody CreateGameDto body) {
-        return toDto(gameService.createGame(body));
+    public GameDto create(@RequestBody CreateGameDto body, JwtAuthenticationToken authentication) {
+        var userId = authentication.getUserId();
+        return toDto(gameService.createGame(userId, body));
     }
 
     @PostMapping("/{gameId}/join")
-    public GameDto join(@PathVariable UUID gameId, @RequestBody JoinGameDto body) {
-        return toDto(gameService.joinGame(gameId, body));
+    public GameDto join(@PathVariable UUID gameId, JwtAuthenticationToken authentication) {
+        var userId = authentication.getUserId();
+        return toDto(gameService.joinGame(userId, gameId));
     }
 
     private static GameDto toDto(GameConfiguration gameConfiguration) {
