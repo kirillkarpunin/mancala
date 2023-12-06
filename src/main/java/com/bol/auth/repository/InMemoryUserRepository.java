@@ -3,17 +3,17 @@ package com.bol.auth.repository;
 import com.bol.auth.model.User;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
 
     // TODO: Concurrency support
-    private final Map<UUID, User> users = new HashMap<>();
+    private final Map<UUID, User> users = new ConcurrentHashMap<>();
 
     @Override
     public boolean existsById(UUID userId) {

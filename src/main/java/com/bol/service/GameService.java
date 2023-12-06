@@ -1,5 +1,6 @@
 package com.bol.service;
 
+import com.bol.auth.service.MessageService;
 import com.bol.dto.request.CreateGameDto;
 import com.bol.dto.request.RequestTurnDto;
 import com.bol.dto.response.GameDto;
@@ -18,9 +19,12 @@ public class GameService {
     private final GameEngine gameEngine;
     private final GameRepository gameRepository;
 
-    public GameService(GameEngine gameEngine, GameRepository gameRepository) {
+    private final MessageService messageService;
+
+    public GameService(GameEngine gameEngine, GameRepository gameRepository, MessageService messageService) {
         this.gameEngine = gameEngine;
         this.gameRepository = gameRepository;
+        this.messageService = messageService;
     }
 
     public GameDto createGame(UUID userId, CreateGameDto body) {
@@ -52,7 +56,11 @@ public class GameService {
 
         game.addPlayer(userId);
         game.initialize();
-        return toDto(gameRepository.save(game));
+
+        var result = toDto(gameRepository.save(game));
+        messageService.sendState(result);
+
+        return result;
     }
 
     private GameConfiguration findGameById(UUID gameId) {
@@ -74,7 +82,12 @@ public class GameService {
 
         gameEngine.turn(playerIndex, message.spaceIndex(), game);
 
-        return toDto(gameRepository.save(game));
+
+        // TODO: Refactor
+        var result = toDto(gameRepository.save(game));
+        messageService.sendState(result);
+
+        return result;
     }
 
     private static Optional<Integer> getPlayerIndex(UUID userId, GameConfiguration game) {

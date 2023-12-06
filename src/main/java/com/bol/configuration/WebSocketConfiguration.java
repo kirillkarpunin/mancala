@@ -10,14 +10,16 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
+    // TODO: Extract API prefixes and URLS to constants
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket");
+        registry.addEndpoint("/websocket").setAllowedOrigins("*");
     }
 
+    // TODO: Add version
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app")
-                .enableSimpleBroker("/v1/topic");
+                .enableSimpleBroker("/topic");
     }
 }
