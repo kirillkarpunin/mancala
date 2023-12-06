@@ -87,6 +87,10 @@ public class GameConfiguration {
         this.status = status;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public List<SpaceRange> getPlayerSpaces() {
         return players.stream()
                 .map(Player::spaceRange)
