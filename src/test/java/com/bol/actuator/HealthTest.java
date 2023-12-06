@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +22,8 @@ public class HealthTest {
 
     @Test
     public void shouldReturnStatusUp() {
-        var response = restTemplate.getForObject("http://localhost:%s/actuator/health".formatted(port), String.class);
-        assertThat(response).contains("{\"status\":\"UP\"}");
+        var response = restTemplate.getForEntity("http://localhost:%s/actuator/health".formatted(port), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("{\"status\":\"UP\"}");
     }
 }
