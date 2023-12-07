@@ -1,8 +1,10 @@
 package com.bol.game.dto.request;
 
+import jakarta.validation.constraints.Min;
+
 public record CreateGameDto(
-        int pitsPerPlayer,
-        int stonesPerSpace,
+        @Min(1) int pitsPerPlayer,
+        @Min(1) int stonesPerSpace,
         boolean isStealingAllowed,
         boolean isMultipleTurnAllowed
 ) {
