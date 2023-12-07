@@ -44,14 +44,14 @@ public class GameService {
         var game = findGameById(gameId);
         var status = game.getStatus();
         if (status != GameStatus.WAITING_FOR_PLAYERS) {
-            throw new IllegalStateException("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
+            throw new IllegalArgumentException("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
 
         var isAlreadyJoined = game.getPlayers().stream()
                 .map(Player::userId)
                 .anyMatch(userId::equals);
         if (isAlreadyJoined) {
-            throw new IllegalStateException("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
+            throw new IllegalArgumentException("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
         }
 
         game.addPlayer(userId);

@@ -34,10 +34,8 @@ public class UserService {
 
     public UserDto registerUser(RegisterDto body) {
         var username = body.username();
-        // TODO: Exception handler
         if (userRepository.existsByUsername(username)) {
-            // TODO: Use different exception class ?
-            throw new IllegalStateException("Username is already taken");
+            throw new IllegalArgumentException("Username is already taken");
         }
 
         var password = passwordEncoder.encode(body.password());
