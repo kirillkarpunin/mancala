@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-// TODO: Swagger
 @CrossOrigin
 @RestController
 public class GameRestController implements GameRestApi {
