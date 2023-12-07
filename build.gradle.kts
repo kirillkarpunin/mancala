@@ -19,6 +19,7 @@ dependencies {
     implementation ("org.springframework.boot:spring-boot-starter-websocket")
     implementation ("org.springframework.boot:spring-boot-starter-reactor-netty")
     implementation ("org.springframework.boot:spring-boot-starter-validation")
+    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

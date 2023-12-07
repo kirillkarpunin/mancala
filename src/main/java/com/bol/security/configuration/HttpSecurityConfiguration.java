@@ -28,6 +28,7 @@ public class HttpSecurityConfiguration {
                         .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
                         // TODO: Secure WS
                         .requestMatchers(HttpMethod.GET, "/websocket").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
