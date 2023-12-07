@@ -2,6 +2,7 @@ package com.bol.security.jwt.configuration;
 
 
 import com.bol.security.jwt.service.JwtService;
+import com.bol.security.jwt.service.JwtServiceImpl;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,7 @@ public class JwtConfiguration {
 
     @Bean
     public JwtService jwtService() {
-        return new JwtService(jwtEncoder(), algorithm, expiresInSec);
+        return new JwtServiceImpl(jwtEncoder(), algorithm, expiresInSec);
     }
 
     @Bean
