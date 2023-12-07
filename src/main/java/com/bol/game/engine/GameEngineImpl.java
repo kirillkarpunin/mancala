@@ -175,7 +175,12 @@ public class GameEngineImpl implements GameEngine {
             }
         }
 
-        return topScorePlayers.size() == 1 ? Optional.of(topScorePlayers.get(0)) : Optional.empty();
+        var isWinnerDetermined = topScorePlayers.size() == 1;
+        if (isWinnerDetermined) {
+            return Optional.of(topScorePlayers.get(0));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private boolean shouldHaveAnotherTurn(int playerIndex, int lastInsertedPitIndex, GameConfiguration game) {
