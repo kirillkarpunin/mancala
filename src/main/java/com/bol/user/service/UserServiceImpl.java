@@ -1,9 +1,7 @@
 package com.bol.user.service;
 
-import com.bol.security.jwt.service.JwtService;
 import com.bol.user.dto.request.LoginDto;
 import com.bol.user.dto.request.RegisterDto;
-import com.bol.user.dto.response.UserDto;
 import com.bol.user.model.User;
 import com.bol.user.repository.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,14 +15,10 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    public UserServiceImpl(
-            PasswordEncoder passwordEncoder, JwtService jwtService, UserRepository userRepository
-    ) {
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
 
@@ -34,21 +28,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto registerUser(RegisterDto body) {
+    public User registerUser(RegisterDto body) {
         var username = body.username();
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username is already taken");
         }
 
         var password = passwordEncoder.encode(body.password());
-        var user = userRepository.save(new User(username, password));
-        var token = generateToken(user);
-        return toDto(user, token);
+        return userRepository.save(new User(username, password));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserDto loginUser(LoginDto body) {
+    public User loginUser(LoginDto body) {
         var username = body.username();
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User is not found: username=%s".formatted(username)));
@@ -57,15 +49,6 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException("Invalid password: username=%s");
         }
 
-        var token = generateToken(user);
-        return toDto(user, token);
-    }
-
-    private String generateToken(User user) {
-        return jwtService.generateToken(user.getId().toString());
-    }
-
-    private UserDto toDto(User user, String token) {
-        return new UserDto(user.getId(), user.getUsername(), token);
+        return user;
     }
 }
