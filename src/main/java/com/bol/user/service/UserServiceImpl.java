@@ -10,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto registerUser(RegisterDto body) {
         var username = body.username();
         if (userRepository.existsByUsername(username)) {
@@ -39,18 +41,19 @@ public class UserServiceImpl implements UserService {
         }
 
         var password = passwordEncoder.encode(body.password());
-        var user = userRepository.save(new User(UUID.randomUUID(), username, password));
+        var user = userRepository.save(new User(username, password));
         var token = generateToken(user);
         return toDto(user, token);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto loginUser(LoginDto body) {
         var username = body.username();
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User is not found: username=%s".formatted(username)));
 
-        if (!passwordEncoder.matches(body.password(), user.password())) {
+        if (!passwordEncoder.matches(body.password(), user.getPassword())) {
             throw new BadCredentialsException("Invalid password: username=%s");
         }
 
@@ -59,10 +62,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateToken(User user) {
-        return jwtService.generateToken(user.id().toString());
+        return jwtService.generateToken(user.getId().toString());
     }
 
     private UserDto toDto(User user, String token) {
-        return new UserDto(user.id(), user.name(), token);
+        return new UserDto(user.getId(), user.getUsername(), token);
     }
 }
