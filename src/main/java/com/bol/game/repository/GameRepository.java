@@ -1,12 +1,13 @@
 package com.bol.game.repository;
 
-import com.bol.game.engine.model.GameConfiguration;
+import com.bol.game.Game;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface GameRepository {
-    GameConfiguration save(GameConfiguration game);
+public interface GameRepository extends JpaRepository<Game, UUID> {
+    Game save(Game game);
 
-    Optional<GameConfiguration> findById(UUID gameId);
+    Optional<Game> findById(UUID id);
 }

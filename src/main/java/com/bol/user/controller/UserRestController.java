@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserRestController implements UserRestApi {
 
+    // TODO: Add facade
     private final UserService userService;
 
     private final JwtService jwtService;

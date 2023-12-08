@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface GameEngine {
 
-    GameConfiguration createGame(
+    GameConfiguration createGameConfiguration(
             UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     );
 

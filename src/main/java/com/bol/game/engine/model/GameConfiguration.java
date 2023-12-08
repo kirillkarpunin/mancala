@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 public class GameConfiguration {
     private static final int NUMBER_OF_PLAYERS = 2;
 
-    private final UUID id;
     private final int pitsPerPlayer;
     private final int spacesPerPlayer;
     private final int stonesPerPit;
@@ -25,11 +24,9 @@ public class GameConfiguration {
     public GameConfiguration(
             UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     ) {
-        // TODO: Consider upper limit as well
         assert pitsPerPlayer > 0;
         assert stonesPerPit > 0;
 
-        this.id = UUID.randomUUID();
         this.pitsPerPlayer = pitsPerPlayer;
         this.spacesPerPlayer = pitsPerPlayer + 1; // Number of spaces = number of pits + one store
         this.stonesPerPit = stonesPerPit;
@@ -60,10 +57,6 @@ public class GameConfiguration {
             Arrays.fill(board, range.firstPitIndex(), range.storeIndex(), stonesPerPit);
         });
         status = GameStatus.ACTIVE;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public int[] getBoard() {

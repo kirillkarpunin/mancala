@@ -196,7 +196,7 @@ class GameEngineTest {
     }
 
     private static GameConfiguration prepareGame(GameEngine engine, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed) {
-        var game = engine.createGame(UUID.randomUUID(), pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
+        var game = engine.createGameConfiguration(UUID.randomUUID(), pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
         game.addPlayer(UUID.randomUUID());
         game.initialize();
 

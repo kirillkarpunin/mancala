@@ -1,14 +1,16 @@
 package com.bol.game.service;
 
+import com.bol.exception.ApplicationException;
+import com.bol.game.Game;
 import com.bol.game.dto.request.CreateGameDto;
 import com.bol.game.dto.request.RequestTurnDto;
-import com.bol.game.dto.response.GameDto;
 import com.bol.game.engine.GameEngine;
+import com.bol.game.engine.exception.GameEngineException;
 import com.bol.game.engine.model.GameConfiguration;
 import com.bol.game.engine.model.GameStatus;
 import com.bol.game.engine.model.Player;
 import com.bol.game.repository.GameRepository;
-import com.bol.message.service.MessageService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,17 +21,15 @@ public class GameServiceImpl implements GameService {
     private final GameEngine gameEngine;
     private final GameRepository gameRepository;
 
-    private final MessageService messageService;
-
-    public GameServiceImpl(GameEngine gameEngine, GameRepository gameRepository, MessageService messageService) {
+    public GameServiceImpl(GameEngine gameEngine, GameRepository gameRepository) {
         this.gameEngine = gameEngine;
         this.gameRepository = gameRepository;
-        this.messageService = messageService;
     }
 
     @Override
-    public GameDto createGame(UUID userId, CreateGameDto body) {
-        var game = gameEngine.createGame(
+    @Transactional
+    public Game createGame(UUID userId, CreateGameDto body) {
+        var configuration = gameEngine.createGameConfiguration(
                 userId,
                 body.pitsPerPlayer(),
                 body.stonesPerSpace(),
@@ -37,60 +37,58 @@ public class GameServiceImpl implements GameService {
                 body.isMultipleTurnAllowed()
         );
 
-        return toDto(gameRepository.save(game));
+        return gameRepository.save(new Game(configuration));
     }
 
     @Override
-    public GameDto joinGame(UUID userId, UUID gameId) {
+    @Transactional
+    public Game joinGame(UUID userId, UUID gameId) {
         // TODO: Acquire lock
         var game = findGameById(gameId);
-        var status = game.getStatus();
+        var configuration = game.getConfiguration();
+        var status = configuration.getStatus();
         if (status != GameStatus.WAITING_FOR_PLAYERS) {
-            throw new IllegalArgumentException("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
+            throw new ApplicationException("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
 
-        var isAlreadyJoined = game.getPlayers().stream()
+        var isAlreadyJoined = configuration.getPlayers().stream()
                 .map(Player::userId)
                 .anyMatch(userId::equals);
         if (isAlreadyJoined) {
-            throw new IllegalArgumentException("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
+            throw new ApplicationException("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
         }
 
-        game.addPlayer(userId);
-        game.initialize();
+        configuration.addPlayer(userId);
+        configuration.initialize();
 
-        var result = toDto(gameRepository.save(game));
-        messageService.sendGameStateUpdated(result);
-
-        return result;
+        return gameRepository.save(game);
     }
 
-    private GameConfiguration findGameById(UUID gameId) {
+    private Game findGameById(UUID gameId) {
         return gameRepository.findById(gameId)
-                .orElseThrow(() -> new IllegalStateException("Game is not found: gameId=%s".formatted(gameId)));
+                .orElseThrow(() -> new ApplicationException("Game is not found: gameId=%s".formatted(gameId)));
     }
 
     @Override
-    public GameDto requestTurn(UUID gameId, RequestTurnDto message) {
+    @Transactional
+    public Game requestTurn(UUID gameId, RequestTurnDto body) {
         // TODO: Acquire lock
         var game = findGameById(gameId);
-        var status = game.getStatus();
+        var configuration = game.getConfiguration();
+        var status = configuration.getStatus();
         if (status != GameStatus.ACTIVE) {
-            throw new IllegalStateException("Game is not in active state: gameId=%s, gameStatus=%s".formatted(gameId, status));
+            throw new ApplicationException("Game is not in active state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
 
-        var userId = message.userId();
-        var playerIndex = getPlayerIndex(userId, game)
-                .orElseThrow(() -> new IllegalStateException("User is not a player: gameId=%s, userId=%s".formatted(gameId, userId)));
+        var userId = body.userId();
+        var playerIndex = getPlayerIndex(userId, configuration)
+                .orElseThrow(() -> new ApplicationException("User is not a player: gameId=%s, userId=%s".formatted(gameId, userId)));
 
-        gameEngine.turn(playerIndex, message.spaceIndex(), game);
+        wrapGameEngineException(
+                gameId, () -> gameEngine.turn(playerIndex, body.spaceIndex(), configuration)
+        );
 
-
-        // TODO: Refactor
-        var result = toDto(gameRepository.save(game));
-        messageService.sendGameStateUpdated(result);
-
-        return result;
+        return gameRepository.save(game);
     }
 
     private static Optional<Integer> getPlayerIndex(UUID userId, GameConfiguration game) {
@@ -105,7 +103,13 @@ public class GameServiceImpl implements GameService {
         return Optional.empty();
     }
 
-    private static GameDto toDto(GameConfiguration gameConfiguration) {
-        return new GameDto(gameConfiguration.getId(), gameConfiguration.getStatus());
+    private void wrapGameEngineException(UUID gameId, Runnable function) {
+        try {
+            function.run();
+        } catch (GameEngineException exception) {
+            var msg = "Request turn for gameId=%s failed. Engine message: %s"
+                    .formatted(gameId, exception.getMessage());
+            throw new ApplicationException(msg);
+        }
     }
 }

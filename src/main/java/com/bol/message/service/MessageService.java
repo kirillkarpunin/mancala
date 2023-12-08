@@ -1,8 +1,8 @@
 package com.bol.message.service;
 
-import com.bol.game.dto.response.GameDto;
+import com.bol.message.dto.GameMessage;
 
 public interface MessageService {
 
-    void sendGameStateUpdated(GameDto message);
+    void sendGameStateUpdated(GameMessage message);
 }

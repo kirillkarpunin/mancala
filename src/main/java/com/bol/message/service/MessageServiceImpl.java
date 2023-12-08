@@ -1,6 +1,6 @@
 package com.bol.message.service;
 
-import com.bol.game.dto.response.GameDto;
+import com.bol.message.dto.GameMessage;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendGameStateUpdated(GameDto message) {
+    public void sendGameStateUpdated(GameMessage message) {
         simpMessagingTemplate.convertAndSend("/topic/game-state.%s".formatted(message.id()), message);
     }
 }

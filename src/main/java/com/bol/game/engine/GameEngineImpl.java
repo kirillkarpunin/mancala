@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 public class GameEngineImpl implements GameEngine {
 
     @Override
-    public GameConfiguration createGame(
+    public GameConfiguration createGameConfiguration(
             UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     ) {
+        // TODO: validate arguments
         return new GameConfiguration(userId, pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
     }
 
     @Override
     public void turn(int playerIndex, int spaceIndex, GameConfiguration game) {
-        // TODO: Acquire lock
         validateTurnRequest(playerIndex, spaceIndex, game);
 
         var stones = pickUpStones(spaceIndex, game.getBoard());
@@ -52,17 +52,16 @@ public class GameEngineImpl implements GameEngine {
     }
 
     private static void validateTurnRequest(int playerIndex, int spaceIndex, GameConfiguration game) {
-        var gameId = game.getId();
         var gameStatus = game.getStatus();
         if (!gameStatus.equals(GameStatus.ACTIVE)) {
-            var msg = "Game is not active: gameId=%s, gameStatus=%s".formatted(gameId, gameStatus);
+            var msg = "Game is not active: gameStatus=%s".formatted(gameStatus);
             throw new GameEngineException(msg);
         }
 
         var expectedPlayerIndex = game.getCurrentPlayerIndex();
         if (!(expectedPlayerIndex == playerIndex)) {
-            var msg = "Turn request by the wrong player: gameId=%s, expectedPlayer=%s, actualPlayer=%s"
-                    .formatted(gameId, expectedPlayerIndex, playerIndex);
+            var msg = "Turn request by the wrong player:expectedPlayer=%s, actualPlayer=%s"
+                    .formatted(expectedPlayerIndex, playerIndex);
             throw new GameEngineException(msg);
         }
 
@@ -70,14 +69,14 @@ public class GameEngineImpl implements GameEngine {
         var firstPitIndex = spaceRange.firstPitIndex();
         var lastPitIndex = spaceRange.lastPitIndex();
         if (spaceIndex < firstPitIndex || spaceIndex > lastPitIndex) {
-            var msg = "Selected space index is now allowed: gameId=%s, selectedPitIndex=%d, allowedIndexRange=[%d,%d]"
-                    .formatted(gameId, spaceIndex, firstPitIndex, lastPitIndex);
+            var msg = "Selected space index is now allowed: selectedPitIndex=%d, allowedIndexRange=[%d,%d]"
+                    .formatted(spaceIndex, firstPitIndex, lastPitIndex);
             throw new GameEngineException(msg);
         }
 
         var stonesInSelectedPit = game.getBoard()[spaceIndex];
         if (stonesInSelectedPit == 0) {
-            var msg = "Selected pit is empty: gameId=%s, selectedPitIndex=%d".formatted(gameId, spaceIndex);
+            var msg = "Selected pit is empty: selectedPitIndex=%d".formatted(spaceIndex);
             throw new GameEngineException(msg);
         }
     }

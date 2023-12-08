@@ -1,7 +1,7 @@
 package com.bol.game.controller;
 
 import com.bol.game.dto.request.RequestTurnDto;
-import com.bol.game.service.GameService;
+import com.bol.game.facade.GameFacade;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -12,14 +12,14 @@ import java.util.UUID;
 @Controller
 public class GameWebSocketController {
 
-    private final GameService gameService;
+    private final GameFacade gameFacade;
 
-    public GameWebSocketController(GameService gameService) {
-        this.gameService = gameService;
+    public GameWebSocketController(GameFacade gameFacade) {
+        this.gameFacade = gameFacade;
     }
 
     @MessageMapping("/game.{gameId}")
-    public void requestTurn(@DestinationVariable UUID gameId, @Payload RequestTurnDto payload) {
-        gameService.requestTurn(gameId, payload);
+    public void requestTurn(@DestinationVariable UUID gameId, @Payload RequestTurnDto body) {
+        gameFacade.requestTurn(gameId, body);
     }
 }
