@@ -13,6 +13,8 @@ repositories {
 }
 
 dependencies {
+    runtimeOnly("org.hsqldb:hsqldb")
+    implementation ("org.flywaydb:flyway-core")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
     implementation ("org.springframework.boot:spring-boot-starter-security")
@@ -20,6 +22,7 @@ dependencies {
     implementation ("org.springframework.boot:spring-boot-starter-websocket")
     implementation ("org.springframework.boot:spring-boot-starter-reactor-netty")
     implementation ("org.springframework.boot:spring-boot-starter-validation")
+    implementation ("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
