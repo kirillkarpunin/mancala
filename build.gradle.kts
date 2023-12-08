@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    runtimeOnly("org.hsqldb:hsqldb")
+    runtimeOnly("org.postgresql:postgresql")
     implementation ("org.flywaydb:flyway-core")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation ("org.springframework.boot:spring-boot-starter-actuator")
