@@ -91,7 +91,7 @@ class UserRestControllerTest extends AbstractRestControllerTest {
         var url = "http://localhost:%s/api/v1/auth/login".formatted(port);
         var request = new LoginDto(RandomString.make(8), RandomString.make(8));
         var response = restTemplate.postForEntity(url, request, UserDto.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -102,6 +102,6 @@ class UserRestControllerTest extends AbstractRestControllerTest {
         var url = "http://localhost:%s/api/v1/auth/login".formatted(port);
         var request = new LoginDto(username, RandomString.make(8));
         var response = restTemplate.postForEntity(url, request, UserDto.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

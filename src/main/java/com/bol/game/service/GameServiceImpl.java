@@ -48,14 +48,14 @@ public class GameServiceImpl implements GameService {
         var configuration = game.getConfiguration();
         var status = configuration.getStatus();
         if (status != GameStatus.WAITING_FOR_PLAYERS) {
-            throw new ApplicationException("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
+            throw ApplicationException.badRequest("Game is not in waiting state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
 
         var isAlreadyJoined = configuration.getPlayers().stream()
                 .map(Player::userId)
                 .anyMatch(userId::equals);
         if (isAlreadyJoined) {
-            throw new ApplicationException("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
+            throw ApplicationException.badRequest("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
         }
 
         configuration.addPlayer(userId);
@@ -66,7 +66,7 @@ public class GameServiceImpl implements GameService {
 
     private Game findGameById(UUID gameId) {
         return gameRepository.findById(gameId)
-                .orElseThrow(() -> new ApplicationException("Game is not found: gameId=%s".formatted(gameId)));
+                .orElseThrow(() -> ApplicationException.badRequest("Game is not found: gameId=%s".formatted(gameId)));
     }
 
     @Override
@@ -77,12 +77,12 @@ public class GameServiceImpl implements GameService {
         var configuration = game.getConfiguration();
         var status = configuration.getStatus();
         if (status != GameStatus.ACTIVE) {
-            throw new ApplicationException("Game is not in active state: gameId=%s, gameStatus=%s".formatted(gameId, status));
+            throw ApplicationException.badRequest("Game is not in active state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
 
         var userId = body.userId();
         var playerIndex = getPlayerIndex(userId, configuration)
-                .orElseThrow(() -> new ApplicationException("User is not a player: gameId=%s, userId=%s".formatted(gameId, userId)));
+                .orElseThrow(() -> ApplicationException.badRequest("User is not a player: gameId=%s, userId=%s".formatted(gameId, userId)));
 
         wrapGameEngineException(
                 gameId, () -> gameEngine.turn(playerIndex, body.spaceIndex(), configuration)
@@ -109,7 +109,7 @@ public class GameServiceImpl implements GameService {
         } catch (GameEngineException exception) {
             var msg = "Request turn for gameId=%s failed. Engine message: %s"
                     .formatted(gameId, exception.getMessage());
-            throw new ApplicationException(msg);
+            throw ApplicationException.badRequest(msg);
         }
     }
 }
