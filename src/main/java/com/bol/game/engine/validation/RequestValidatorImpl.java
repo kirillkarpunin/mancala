@@ -6,6 +6,8 @@ import com.bol.game.engine.model.GameStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import static com.bol.game.engine.util.GameEngineUtil.getPlayerSpaceRange;
+
 @Component
 public class RequestValidatorImpl implements RequestValidator {
 
@@ -42,6 +44,22 @@ public class RequestValidatorImpl implements RequestValidator {
     }
 
     @Override
+    public void validateInitializeGameRequest(GameConfiguration game, int expectedNumberOfPlayers) {
+        var numberOfPlayers = game.getPlayers().size();
+        if (numberOfPlayers != expectedNumberOfPlayers) {
+            var msg = "Invalid number of players: expected=%d, actual=%d"
+                    .formatted(expectedNumberOfPlayers, numberOfPlayers);
+            throw new GameEngineException(msg);
+        }
+
+        var gameStatus = game.getStatus();
+        if (!gameStatus.equals(GameStatus.WAITING_FOR_PLAYERS)) {
+            var msg = "Game is not in waiting state: gameStatus=%s".formatted(gameStatus);
+            throw new GameEngineException(msg);
+        }
+    }
+
+    @Override
     public void validateTurnRequest(int playerIndex, int spaceIndex, GameConfiguration game) {
         var gameStatus = game.getStatus();
         if (!gameStatus.equals(GameStatus.ACTIVE)) {
@@ -56,7 +74,7 @@ public class RequestValidatorImpl implements RequestValidator {
             throw new GameEngineException(msg);
         }
 
-        var spaceRange = game.getPlayerSpaceRange(playerIndex);
+        var spaceRange = getPlayerSpaceRange(game, playerIndex);
         var firstPitIndex = spaceRange.firstPitIndex();
         var lastPitIndex = spaceRange.lastPitIndex();
         if (spaceIndex < firstPitIndex || spaceIndex > lastPitIndex) {

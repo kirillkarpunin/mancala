@@ -2,14 +2,23 @@ package com.bol.game.engine;
 
 import com.bol.game.engine.model.GameConfiguration;
 import com.bol.game.engine.model.GameStatus;
+import com.bol.game.engine.model.Player;
 import com.bol.game.engine.model.SpaceRange;
 import com.bol.game.engine.validation.RequestValidator;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static com.bol.game.engine.util.GameEngineUtil.NUMBER_OF_PLAYERS;
+import static com.bol.game.engine.util.GameEngineUtil.collectRemainingStones;
+import static com.bol.game.engine.util.GameEngineUtil.determineWinner;
+import static com.bol.game.engine.util.GameEngineUtil.isGameFinished;
+import static com.bol.game.engine.util.GameEngineUtil.pickUpStones;
+import static com.bol.game.engine.util.GameEngineUtil.setNextPlayer;
+import static com.bol.game.engine.util.GameEngineUtil.shouldHaveAnotherTurn;
+import static com.bol.game.engine.util.GameEngineUtil.sowStones;
+import static com.bol.game.engine.util.GameEngineUtil.tryStealStones;
 
 @Component
 public class GameEngineImpl implements GameEngine {
@@ -22,10 +31,27 @@ public class GameEngineImpl implements GameEngine {
 
     @Override
     public GameConfiguration createGameConfiguration(
-            UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
+            int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     ) {
         requestValidator.validateCreateGameRequest(pitsPerPlayer, stonesPerPit);
-        return new GameConfiguration(userId, pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
+
+        var spacesPerPlayer = pitsPerPlayer + 1; // Number of spaces = number of pits + one store
+        var board = new int[spacesPerPlayer * NUMBER_OF_PLAYERS];
+
+        return new GameConfiguration(
+                pitsPerPlayer, spacesPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed, board
+        );
+    }
+
+    @Override
+    public void addPlayer(UUID userId, GameConfiguration game) {
+        var players = game.getPlayers();
+        var playerIndex = players.size();
+        var firstPitIndex = playerIndex * game.getSpacesPerPlayer();
+        var lastPitIndex = firstPitIndex + game.getPitsPerPlayer() - 1;
+        var storeIndex = lastPitIndex + 1;
+        var spaceRange = new SpaceRange(firstPitIndex, lastPitIndex, storeIndex);
+        players.add(new Player(userId, spaceRange));
     }
 
     @Override
@@ -45,126 +71,22 @@ public class GameEngineImpl implements GameEngine {
         }
 
         if (!shouldHaveAnotherTurn(playerIndex, lastInsertedPitIndex, game)) {
-            game.setNextPlayer();
+            setNextPlayer(game);
         }
     }
 
-    private int pickUpStones(int firstIndex, int lastIndex, int[] board) {
-        var stones = 0;
-        for (var i = firstIndex; i <= lastIndex; i++) {
-            stones += pickUpStones(i, board);
-        }
-        return stones;
-    }
-
-
-    private static int pickUpStones(int pitIndex, int[] board) {
-        var stones = board[pitIndex];
-        board[pitIndex] = 0;
-
-        return stones;
-    }
-
-    private static int sowStones(int playerIndex, int stones, int currentSpaceIndex, GameConfiguration game) {
-        var otherPlayerStoreIndexes = game.getOtherPlayerSpaces(playerIndex).stream()
-                .map(SpaceRange::storeIndex)
-                .collect(Collectors.toSet());
+    @Override
+    public void initialize(GameConfiguration game) {
+        requestValidator.validateInitializeGameRequest(game, NUMBER_OF_PLAYERS);
+        var players = game.getPlayers();
         var board = game.getBoard();
+        var stonesPerPit = game.getStonesPerPit();
 
-        while (stones > 0) {
-            currentSpaceIndex = getNextSpaceIndex(currentSpaceIndex, game);
-            if (!otherPlayerStoreIndexes.contains(currentSpaceIndex)) {
-                board[currentSpaceIndex]++;
-                stones--;
-            }
-        }
-
-        return currentSpaceIndex;
-    }
-
-    public static int getNextSpaceIndex(int pitIndex, GameConfiguration game) {
-        return (pitIndex + 1) % game.getBoard().length;
-    }
-
-    private void tryStealStones(int playerIndex, int lastInsertedPitIndex, GameConfiguration game) {
-        if (!game.isStealingAllowed()) {
-            return;
-        }
-
-        var spaceRange = game.getPlayerSpaceRange(playerIndex);
-
-        var board = game.getBoard();
-        var shouldSteal = lastInsertedPitIndex >= spaceRange.firstPitIndex()
-                && lastInsertedPitIndex <= spaceRange.lastPitIndex()
-                && board[lastInsertedPitIndex] == 1;
-        if (shouldSteal) {
-            var stones = pickUpStones(lastInsertedPitIndex, board);
-            var oppositeSpaceIndex = game.getOppositeSpaceIndex(lastInsertedPitIndex);
-            stones += pickUpStones(oppositeSpaceIndex, board);
-
-            board[spaceRange.storeIndex()] += stones;
-        }
-    }
-
-    private boolean isGameFinished(GameConfiguration game) {
-        var board = game.getBoard();
-        var spaceRanges = game.getPlayerSpaces();
-        return spaceRanges.stream().anyMatch(spaceRange -> isEmpty(spaceRange, board));
-    }
-
-    private boolean isEmpty(SpaceRange spaceRange, int[] board) {
-        var first = spaceRange.firstPitIndex();
-        var last = spaceRange.lastPitIndex();
-
-        for (var i = first; i <= last; i++) {
-            if (board[i] != 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private void collectRemainingStones(GameConfiguration game) {
-        var spaceRanges = game.getPlayerSpaces();
-        var board = game.getBoard();
-        spaceRanges.forEach(spaceRange -> {
-            var stones = pickUpStones(spaceRange.firstPitIndex(), spaceRange.lastPitIndex(), board);
-            board[spaceRange.storeIndex()] += stones;
+        players.forEach(player -> {
+            var range = player.spaceRange();
+            Arrays.fill(board, range.firstPitIndex(), range.storeIndex(), stonesPerPit);
         });
-    }
 
-    private Optional<Integer> determineWinner(GameConfiguration game) {
-        var board = game.getBoard();
-        var spaceRanges = game.getPlayerSpaces();
-
-        var winnerScore = -1;
-        var topScorePlayers = new ArrayList<Integer>();
-        for (var i = 0; i < spaceRanges.size(); i++) {
-            var stones = board[spaceRanges.get(i).storeIndex()];
-            if (stones > winnerScore) {
-                winnerScore = stones;
-                topScorePlayers.clear();
-                topScorePlayers.add(i);
-            } else if (stones == winnerScore) {
-                topScorePlayers.add(i);
-            }
-        }
-
-        var isWinnerDetermined = topScorePlayers.size() == 1;
-        if (isWinnerDetermined) {
-            return Optional.of(topScorePlayers.get(0));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private boolean shouldHaveAnotherTurn(int playerIndex, int lastInsertedPitIndex, GameConfiguration game) {
-        if (!game.isMultipleTurnAllowed() || game.getStatus() != GameStatus.ACTIVE) {
-            return false;
-        }
-
-        var storeIndex = game.getPlayerSpaceRange(playerIndex).storeIndex();
-        return storeIndex == lastInsertedPitIndex;
+        game.setStatus(GameStatus.ACTIVE);
     }
 }

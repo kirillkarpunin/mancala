@@ -1,22 +1,50 @@
 package com.bol.game.engine;
 
-import com.bol.game.engine.model.GameConfiguration;
 import com.bol.game.engine.model.GameStatus;
-import com.bol.game.engine.validation.RequestValidator;
+import com.bol.game.engine.util.GameEngineUtil;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.UUID;
 
+import static com.bol.TestUtil.prepareEngine;
+import static com.bol.TestUtil.prepareGame;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GameEngineTest {
+
+    @Test
+    public void shouldInitializeGame() {
+        var pitsPerPlayer = 3;
+        var stonesPerPit = 4;
+
+        var engine = prepareEngine();
+        var game = engine.createGameConfiguration(pitsPerPlayer, stonesPerPit, true, true);
+        engine.addPlayer(UUID.randomUUID(), game);
+        engine.addPlayer(UUID.randomUUID(), game);
+        engine.initialize(game);
+
+        var spaceRanges = GameEngineUtil.getPlayerSpaces(game);
+        assertEquals(spaceRanges.size(), 2);
+
+        var firstSpaceRange = spaceRanges.get(0);
+        assertEquals(0, firstSpaceRange.firstPitIndex());
+        assertEquals(2, firstSpaceRange.lastPitIndex());
+        assertEquals(3, firstSpaceRange.storeIndex());
+
+        var secondSpaceRange = spaceRanges.get(1);
+        assertEquals(4, secondSpaceRange.firstPitIndex());
+        assertEquals(6, secondSpaceRange.lastPitIndex());
+        assertEquals(7, secondSpaceRange.storeIndex());
+
+        var board = game.getBoard();
+        assertArrayEquals(new int[]{4, 4, 4, 0, 4, 4, 4, 0}, board);
+    }
+
     @Test
     public void shouldSowStones() {
         var engine = prepareEngine();
         var game = prepareGame(engine, 4, 6, true, true);
-        game.setStatus(GameStatus.ACTIVE);
 
         engine.turn(0, 1, game);
 
@@ -138,19 +166,4 @@ class GameEngineTest {
         assertEquals(GameStatus.ACTIVE, game.getStatus());
     }
 
-    private static GameConfiguration prepareGame(GameEngine engine, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed) {
-        var game = engine.createGameConfiguration(UUID.randomUUID(), pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
-        game.addPlayer(UUID.randomUUID());
-        game.initialize();
-
-        return game;
-    }
-
-    private static GameEngine prepareEngine() {
-        var validator = Mockito.mock(RequestValidator.class);
-        Mockito.doNothing().when(validator).validateCreateGameRequest(Mockito.anyInt(), Mockito.anyInt());
-        Mockito.doNothing().when(validator).validateTurnRequest(Mockito.anyInt(), Mockito.anyInt(), Mockito.any());
-
-        return new GameEngineImpl(validator);
-    }
 }

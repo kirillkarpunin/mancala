@@ -30,12 +30,12 @@ public class GameServiceImpl implements GameService {
     @Transactional
     public Game createGame(UUID userId, CreateGameDto body) {
         var configuration = gameEngine.createGameConfiguration(
-                userId,
                 body.pitsPerPlayer(),
                 body.stonesPerSpace(),
                 body.isStealingAllowed(),
                 body.isMultipleTurnAllowed()
         );
+        gameEngine.addPlayer(userId, configuration);
 
         return gameRepository.save(new Game(configuration));
     }
@@ -58,8 +58,8 @@ public class GameServiceImpl implements GameService {
             throw ApplicationException.badRequest("User is already joined: gameId=%s, userId=%s".formatted(gameId, userId));
         }
 
-        configuration.addPlayer(userId);
-        configuration.initialize();
+        gameEngine.addPlayer(userId, configuration);
+        gameEngine.initialize(configuration);
 
         return gameRepository.save(game);
     }
