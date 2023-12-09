@@ -63,7 +63,6 @@
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
 
-        <module name="FinalClass"/>
         <module name="InterfaceIsType"/>
 
         <module name="ArrayTypeStyle"/>
