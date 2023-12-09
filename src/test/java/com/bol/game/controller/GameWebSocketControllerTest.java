@@ -118,5 +118,4 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
 
         return session;
     }
-
 }
