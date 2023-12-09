@@ -87,15 +87,10 @@ public class GameServiceImpl implements GameService {
     }
 
     private static Optional<Integer> getPlayerIndex(UUID userId, GameState game) {
-        // TODO: Refactor, consider moving playerIndex to Player structure
-        var players = game.getPlayers();
-        for (int i = 0; i < players.size(); i++) {
-            var player = players.get(i);
-            if (player.userId().equals(userId)) {
-                return Optional.of(i);
-            }
-        }
-        return Optional.empty();
+        return game.getPlayers().stream()
+                .filter(player -> player.userId().equals(userId))
+                .map(Player::playerIndex)
+                .findFirst();
     }
 
     private void wrapGameEngineException(UUID gameId, Runnable function) {

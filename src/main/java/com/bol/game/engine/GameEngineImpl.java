@@ -50,7 +50,7 @@ public class GameEngineImpl implements GameEngine {
         var lastPitIndex = firstPitIndex + game.getPitsPerPlayer() - 1;
         var storeIndex = lastPitIndex + 1;
         var spaceRange = new SpaceRange(firstPitIndex, lastPitIndex, storeIndex);
-        players.add(new Player(userId, spaceRange));
+        players.add(new Player(userId, playerIndex, spaceRange));
     }
 
     @Override
