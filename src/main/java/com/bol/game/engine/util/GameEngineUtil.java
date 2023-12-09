@@ -1,6 +1,6 @@
 package com.bol.game.engine.util;
 
-import com.bol.game.engine.model.GameConfiguration;
+import com.bol.game.engine.model.GameState;
 import com.bol.game.engine.model.GameStatus;
 import com.bol.game.engine.model.Player;
 import com.bol.game.engine.model.SpaceRange;
@@ -21,7 +21,7 @@ public class GameEngineUtil {
         return stones;
     }
 
-    public static int sowStones(int playerIndex, int stones, int currentSpaceIndex, GameConfiguration game) {
+    public static int sowStones(int playerIndex, int stones, int currentSpaceIndex, GameState game) {
         var otherPlayerStoreIndexes = getOtherPlayerSpaces(game, playerIndex).stream()
                 .map(SpaceRange::storeIndex)
                 .collect(Collectors.toSet());
@@ -38,7 +38,7 @@ public class GameEngineUtil {
         return currentSpaceIndex;
     }
 
-    public static void tryStealStones(int playerIndex, int lastInsertedPitIndex, GameConfiguration game) {
+    public static void tryStealStones(int playerIndex, int lastInsertedPitIndex, GameState game) {
         if (!game.isStealingAllowed()) {
             return;
         }
@@ -58,13 +58,13 @@ public class GameEngineUtil {
         }
     }
 
-    public static boolean isGameFinished(GameConfiguration game) {
+    public static boolean isGameFinished(GameState game) {
         var board = game.getBoard();
         var spaceRanges = getPlayerSpaces(game);
         return spaceRanges.stream().anyMatch(spaceRange -> isEmpty(spaceRange, board));
     }
 
-    public static void collectRemainingStones(GameConfiguration game) {
+    public static void collectRemainingStones(GameState game) {
         var spaceRanges = getPlayerSpaces(game);
         var board = game.getBoard();
         spaceRanges.forEach(spaceRange -> {
@@ -73,7 +73,7 @@ public class GameEngineUtil {
         });
     }
 
-    public static Optional<Integer> determineWinner(GameConfiguration game) {
+    public static Optional<Integer> determineWinner(GameState game) {
         var board = game.getBoard();
         var spaceRanges = getPlayerSpaces(game);
 
@@ -98,7 +98,7 @@ public class GameEngineUtil {
         }
     }
 
-    public static boolean shouldHaveAnotherTurn(int playerIndex, int lastInsertedPitIndex, GameConfiguration game) {
+    public static boolean shouldHaveAnotherTurn(int playerIndex, int lastInsertedPitIndex, GameState game) {
         if (!game.isMultipleTurnAllowed() || game.getStatus() != GameStatus.ACTIVE) {
             return false;
         }
@@ -107,14 +107,14 @@ public class GameEngineUtil {
         return storeIndex == lastInsertedPitIndex;
     }
 
-    public static void setNextPlayer(GameConfiguration game) {
+    public static void setNextPlayer(GameState game) {
         var currentPlayerIndex = game.getCurrentPlayerIndex();
         var nextPlayerIndex = (currentPlayerIndex + 1) % NUMBER_OF_PLAYERS;
 
         game.setCurrentPlayerIndex(nextPlayerIndex);
     }
 
-    public static SpaceRange getPlayerSpaceRange(GameConfiguration game, int playerIndex) {
+    public static SpaceRange getPlayerSpaceRange(GameState game, int playerIndex) {
         validatePlayerIndex(playerIndex);
 
         return game.getPlayers().get(playerIndex).spaceRange();
@@ -128,7 +128,7 @@ public class GameEngineUtil {
         return stones;
     }
 
-    private static int getNextSpaceIndex(int pitIndex, GameConfiguration game) {
+    private static int getNextSpaceIndex(int pitIndex, GameState game) {
         return (pitIndex + 1) % game.getBoard().length;
     }
 
@@ -145,13 +145,13 @@ public class GameEngineUtil {
         return true;
     }
 
-    public static List<SpaceRange> getPlayerSpaces(GameConfiguration game) {
+    public static List<SpaceRange> getPlayerSpaces(GameState game) {
         return game.getPlayers().stream()
                 .map(Player::spaceRange)
                 .collect(Collectors.toList());
     }
 
-    public static List<SpaceRange> getOtherPlayerSpaces(GameConfiguration game, int playerIndex) {
+    public static List<SpaceRange> getOtherPlayerSpaces(GameState game, int playerIndex) {
         validatePlayerIndex(playerIndex);
 
         var spaces = getPlayerSpaces(game);
@@ -159,7 +159,7 @@ public class GameEngineUtil {
         return spaces;
     }
 
-    public static int getOppositeSpaceIndex(GameConfiguration game, int spaceIndex) {
+    public static int getOppositeSpaceIndex(GameState game, int spaceIndex) {
         assert spaceIndex >= 0 && spaceIndex < game.getBoard().length;
 
         var isStoreIndex = game.getPlayers().stream()

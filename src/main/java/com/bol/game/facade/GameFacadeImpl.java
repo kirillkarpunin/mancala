@@ -46,12 +46,12 @@ public class GameFacadeImpl implements GameFacade {
     }
 
     private static GameDto toDto(Game game) {
-        var configuration = game.getConfiguration();
-        return new GameDto(game.getId(), configuration.getStatus());
+        var state = game.getState();
+        return new GameDto(game.getId(), state.getStatus());
     }
 
     private static GameMessage toMessage(Game game) {
-        var configuration = game.getConfiguration();
-        return new GameMessage(game.getId(), configuration.getStatus());
+        var state = game.getState();
+        return new GameMessage(game.getId(), state.getStatus());
     }
 }

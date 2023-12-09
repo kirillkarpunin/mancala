@@ -1,6 +1,6 @@
 package com.bol.game.engine;
 
-import com.bol.game.engine.model.GameConfiguration;
+import com.bol.game.engine.model.GameState;
 import com.bol.game.engine.model.GameStatus;
 import com.bol.game.engine.model.Player;
 import com.bol.game.engine.model.SpaceRange;
@@ -30,7 +30,7 @@ public class GameEngineImpl implements GameEngine {
     }
 
     @Override
-    public GameConfiguration createGameConfiguration(
+    public GameState createGame(
             int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     ) {
         requestValidator.validateCreateGameRequest(pitsPerPlayer, stonesPerPit);
@@ -38,13 +38,13 @@ public class GameEngineImpl implements GameEngine {
         var spacesPerPlayer = pitsPerPlayer + 1; // Number of spaces = number of pits + one store
         var board = new int[spacesPerPlayer * NUMBER_OF_PLAYERS];
 
-        return new GameConfiguration(
+        return new GameState(
                 pitsPerPlayer, spacesPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed, board
         );
     }
 
     @Override
-    public void addPlayer(UUID userId, GameConfiguration game) {
+    public void addPlayer(UUID userId, GameState game) {
         var players = game.getPlayers();
         var playerIndex = players.size();
         var firstPitIndex = playerIndex * game.getSpacesPerPlayer();
@@ -55,7 +55,7 @@ public class GameEngineImpl implements GameEngine {
     }
 
     @Override
-    public void turn(int playerIndex, int spaceIndex, GameConfiguration game) {
+    public void turn(int playerIndex, int spaceIndex, GameState game) {
         requestValidator.validateTurnRequest(playerIndex, spaceIndex, game);
 
         var stones = pickUpStones(spaceIndex, game.getBoard());
@@ -76,7 +76,7 @@ public class GameEngineImpl implements GameEngine {
     }
 
     @Override
-    public void initialize(GameConfiguration game) {
+    public void initialize(GameState game) {
         requestValidator.validateInitializeGameRequest(game, NUMBER_OF_PLAYERS);
         var players = game.getPlayers();
         var board = game.getBoard();

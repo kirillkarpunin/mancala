@@ -1,6 +1,6 @@
 package com.bol.game;
 
-import com.bol.game.engine.model.GameConfiguration;
+import com.bol.game.engine.model.GameState;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,20 +20,20 @@ public class Game {
     private UUID id;
 
     @Type(JsonType.class)
-    private GameConfiguration configuration;
+    private GameState state;
 
     public Game() {
     }
 
-    public Game(GameConfiguration configuration) {
-        this.configuration = configuration;
+    public Game(GameState state) {
+        this.state = state;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public GameConfiguration getConfiguration() {
-        return configuration;
+    public GameState getState() {
+        return state;
     }
 }

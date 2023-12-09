@@ -1,5 +1,5 @@
 CREATE TABLE games
 (
-    id            UUID PRIMARY KEY,
-    configuration JSONB not null
+    id    UUID PRIMARY KEY,
+    state JSONB not null
 );

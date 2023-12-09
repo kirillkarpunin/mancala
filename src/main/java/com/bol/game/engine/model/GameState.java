@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameConfiguration {
+public class GameState {
 
     private final int pitsPerPlayer;
     private final int spacesPerPlayer;
@@ -20,7 +20,7 @@ public class GameConfiguration {
     private Integer winnerIndex;
     private GameStatus status;
 
-    public GameConfiguration(
+    public GameState(
             int pitsPerPlayer, int spacesPerPlayer, int stonesPerPit,
             boolean isStealingAllowed, boolean isMultipleTurnAllowed, int[] board
     ) {
@@ -29,7 +29,7 @@ public class GameConfiguration {
     }
 
     @JsonCreator
-    public GameConfiguration(
+    public GameState(
             int pitsPerPlayer, int spacesPerPlayer, int stonesPerPit, boolean isStealingAllowed,
             boolean isMultipleTurnAllowed, int[] board, List<Player> players, int currentPlayerIndex,
             GameStatus status, Integer winnerIndex

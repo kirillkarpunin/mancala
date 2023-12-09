@@ -1,7 +1,7 @@
 package com.bol.game.engine.validation;
 
 import com.bol.game.engine.exception.GameEngineException;
-import com.bol.game.engine.model.GameConfiguration;
+import com.bol.game.engine.model.GameState;
 import com.bol.game.engine.model.GameStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,7 @@ public class RequestValidatorImpl implements RequestValidator {
     }
 
     @Override
-    public void validateInitializeGameRequest(GameConfiguration game, int expectedNumberOfPlayers) {
+    public void validateInitializeGameRequest(GameState game, int expectedNumberOfPlayers) {
         var numberOfPlayers = game.getPlayers().size();
         if (numberOfPlayers != expectedNumberOfPlayers) {
             var msg = "Invalid number of players: expected=%d, actual=%d"
@@ -60,7 +60,7 @@ public class RequestValidatorImpl implements RequestValidator {
     }
 
     @Override
-    public void validateTurnRequest(int playerIndex, int spaceIndex, GameConfiguration game) {
+    public void validateTurnRequest(int playerIndex, int spaceIndex, GameState game) {
         var gameStatus = game.getStatus();
         if (!gameStatus.equals(GameStatus.ACTIVE)) {
             var msg = "Game is not active: gameStatus=%s".formatted(gameStatus);

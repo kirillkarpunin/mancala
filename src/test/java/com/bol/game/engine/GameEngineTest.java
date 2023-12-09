@@ -19,7 +19,7 @@ class GameEngineTest {
         var stonesPerPit = 4;
 
         var engine = prepareEngine();
-        var game = engine.createGameConfiguration(pitsPerPlayer, stonesPerPit, true, true);
+        var game = engine.createGame(pitsPerPlayer, stonesPerPit, true, true);
         engine.addPlayer(UUID.randomUUID(), game);
         engine.addPlayer(UUID.randomUUID(), game);
         engine.initialize(game);

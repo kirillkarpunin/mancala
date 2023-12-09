@@ -1,18 +1,18 @@
 package com.bol.game.engine;
 
-import com.bol.game.engine.model.GameConfiguration;
+import com.bol.game.engine.model.GameState;
 
 import java.util.UUID;
 
 public interface GameEngine {
 
-    GameConfiguration createGameConfiguration(
+    GameState createGame(
             int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     );
 
-    void addPlayer(UUID userId, GameConfiguration game);
+    void addPlayer(UUID userId, GameState game);
 
-    void turn(int playerIndex, int spaceIndex, GameConfiguration game);
+    void turn(int playerIndex, int spaceIndex, GameState game);
 
-    void initialize(GameConfiguration game);
+    void initialize(GameState game);
 }
