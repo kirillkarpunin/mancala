@@ -7,21 +7,18 @@ import com.bol.game.dto.response.GameDto;
 import com.bol.game.service.GameService;
 import com.bol.message.dto.GameMessage;
 import com.bol.message.service.MessageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class GameFacadeImpl implements GameFacade {
 
     private final GameService gameService;
 
     private final MessageService messageService;
-
-    public GameFacadeImpl(GameService gameService, MessageService messageService) {
-        this.gameService = gameService;
-        this.messageService = messageService;
-    }
 
     @Override
     public GameDto createGame(UUID userId, CreateGameDto body) {

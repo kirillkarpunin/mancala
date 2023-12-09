@@ -6,18 +6,15 @@ import com.bol.user.dto.request.RegisterDto;
 import com.bol.user.dto.response.UserDto;
 import com.bol.user.model.User;
 import com.bol.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UserFacadeImpl implements UserFacade {
     private final UserService userService;
 
     private final JwtService jwtService;
-
-    public UserFacadeImpl(UserService userService, JwtService jwtService) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-    }
 
     @Override
     public UserDto register(RegisterDto body) {

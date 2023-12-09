@@ -11,20 +11,17 @@ import com.bol.game.engine.model.GameStatus;
 import com.bol.game.engine.model.Player;
 import com.bol.game.repository.GameRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
     private final GameEngine gameEngine;
     private final GameRepository gameRepository;
-
-    public GameServiceImpl(GameEngine gameEngine, GameRepository gameRepository) {
-        this.gameEngine = gameEngine;
-        this.gameRepository = gameRepository;
-    }
 
     @Override
     @Transactional

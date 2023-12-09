@@ -2,6 +2,7 @@ package com.bol.security.jwt.converter;
 
 import com.bol.security.jwt.JwtAuthenticationToken;
 import com.bol.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.BadJwtException;
@@ -13,13 +14,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private final UserService userService;
-
-    public JwtAuthenticationConverter(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {

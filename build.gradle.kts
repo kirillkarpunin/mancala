@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version ("3.2.0")
     id("checkstyle")
+    id ("io.freefair.lombok") version ("8.2.2")
 }
 apply(plugin = "io.spring.dependency-management")
 

@@ -5,8 +5,10 @@ import com.bol.game.engine.model.GameStatus;
 import com.bol.game.engine.model.Player;
 import com.bol.game.engine.model.SpaceRange;
 import com.bol.game.engine.validation.RequestValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -21,13 +23,10 @@ import static com.bol.game.engine.util.GameEngineUtil.sowStones;
 import static com.bol.game.engine.util.GameEngineUtil.tryStealStones;
 
 @Component
+@RequiredArgsConstructor
 public class GameEngineImpl implements GameEngine {
 
     private final RequestValidator requestValidator;
-
-    public GameEngineImpl(RequestValidator requestValidator) {
-        this.requestValidator = requestValidator;
-    }
 
     @Override
     public GameState createGame(
@@ -37,9 +36,9 @@ public class GameEngineImpl implements GameEngine {
 
         var spacesPerPlayer = pitsPerPlayer + 1; // Number of spaces = number of pits + one store
         var board = new int[spacesPerPlayer * NUMBER_OF_PLAYERS];
-
+        var players = new ArrayList<Player>();
         return new GameState(
-                pitsPerPlayer, spacesPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed, board
+                pitsPerPlayer, spacesPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed, board, players
         );
     }
 
