@@ -1,6 +1,6 @@
 package com.bol.user.controller;
 
-import com.bol.AbstractRestControllerTest;
+import com.bol.AbstractControllerTest;
 import com.bol.user.dto.request.LoginDto;
 import com.bol.user.dto.request.RegisterDto;
 import com.bol.user.dto.response.UserDto;
@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class UserRestControllerTest extends AbstractRestControllerTest {
+class UserRestControllerTest extends AbstractControllerTest {
 
     @Test
     public void shouldRegisterUser() {
