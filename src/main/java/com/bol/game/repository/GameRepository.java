@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface GameRepository extends JpaRepository<Game, UUID> {
-    Game save(Game game);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT g FROM Game g WHERE g.id = :id")
     Optional<Game> lockById(UUID id);
