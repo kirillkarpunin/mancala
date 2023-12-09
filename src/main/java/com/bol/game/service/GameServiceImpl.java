@@ -43,8 +43,7 @@ public class GameServiceImpl implements GameService {
     @Override
     @Transactional
     public Game joinGame(UUID userId, UUID gameId) {
-        // TODO: Acquire lock
-        var game = findGameById(gameId);
+        var game = lockGameById(gameId);
         var configuration = game.getConfiguration();
         var status = configuration.getStatus();
         if (status != GameStatus.WAITING_FOR_PLAYERS) {
@@ -64,16 +63,15 @@ public class GameServiceImpl implements GameService {
         return gameRepository.save(game);
     }
 
-    private Game findGameById(UUID gameId) {
-        return gameRepository.findById(gameId)
+    private Game lockGameById(UUID gameId) {
+        return gameRepository.lockById(gameId)
                 .orElseThrow(() -> ApplicationException.badRequest("Game is not found: gameId=%s".formatted(gameId)));
     }
 
     @Override
     @Transactional
     public Game requestTurn(UUID gameId, RequestTurnDto body) {
-        // TODO: Acquire lock
-        var game = findGameById(gameId);
+        var game = lockGameById(gameId);
         var configuration = game.getConfiguration();
         var status = configuration.getStatus();
         if (status != GameStatus.ACTIVE) {
