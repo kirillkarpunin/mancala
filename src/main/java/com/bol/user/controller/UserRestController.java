@@ -1,12 +1,10 @@
 package com.bol.user.controller;
 
-import com.bol.security.jwt.service.JwtService;
 import com.bol.user.api.UserRestApi;
 import com.bol.user.dto.request.LoginDto;
 import com.bol.user.dto.request.RegisterDto;
 import com.bol.user.dto.response.UserDto;
-import com.bol.user.model.User;
-import com.bol.user.service.UserService;
+import com.bol.user.facade.UserFacade;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,35 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserRestController implements UserRestApi {
 
-    // TODO: Add facade
-    private final UserService userService;
+    private final UserFacade userFacade;
 
-    private final JwtService jwtService;
-
-    public UserRestController(UserService userService, JwtService jwtService) {
-        this.userService = userService;
-        this.jwtService = jwtService;
+    public UserRestController(UserFacade userFacade) {
+        this.userFacade = userFacade;
     }
 
     @Override
     public UserDto register(RegisterDto body) {
-        var user = userService.registerUser(body);
-        var token = generateToken(user);
-        return toDto(user, token);
+        return userFacade.register(body);
     }
 
     @Override
     public UserDto login(LoginDto body) {
-        var user = userService.loginUser(body);
-        var token = generateToken(user);
-        return toDto(user, token);
-    }
-
-    private String generateToken(User user) {
-        return jwtService.generateToken(user.getId().toString());
-    }
-
-    private UserDto toDto(User user, String token) {
-        return new UserDto(user.getId(), user.getUsername(), token);
+        return userFacade.login(body);
     }
 }
