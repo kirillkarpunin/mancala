@@ -2,6 +2,7 @@ package com.bol.game.controller;
 
 import com.bol.AbstractControllerTest;
 import com.bol.game.engine.model.GameStatus;
+import com.bol.message.configuration.WebSocketConfiguration;
 import com.bol.message.dto.GameMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -33,7 +34,8 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
         var session = connect(client);
 
         var messageQueue = new ArrayBlockingQueue<GameMessage>(1);
-        session.subscribe("/topic/game-state.%s".formatted(gameId), new StompFrameHandler() {
+        var subscribeUrl = "%s/game-state.%s".formatted(WebSocketConfiguration.TOPIC_DESTINATION_PATH_PREFIX, gameId);
+        session.subscribe(subscribeUrl, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
                 return GameMessage.class;
@@ -51,7 +53,7 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
         Awaitility.await()
                 .atMost(1, SECONDS)
                 .untilAsserted(() -> {
-                    var gameMessage = messageQueue.poll();
+                    var gameMessage = messageQueue.take();
                     assertEquals(gameId, gameMessage.id());
                     assertEquals(GameStatus.ACTIVE, gameMessage.status());
                 });

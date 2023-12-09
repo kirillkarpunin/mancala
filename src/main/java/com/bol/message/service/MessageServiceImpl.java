@@ -1,5 +1,6 @@
 package com.bol.message.service;
 
+import com.bol.message.configuration.WebSocketConfiguration;
 import com.bol.message.dto.GameMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,6 +14,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void sendGameStateUpdated(GameMessage message) {
-        simpMessagingTemplate.convertAndSend("/topic/game-state.%s".formatted(message.id()), message);
+        var url = "%s/game-state.%s".formatted(WebSocketConfiguration.TOPIC_DESTINATION_PATH_PREFIX, message.id());
+        simpMessagingTemplate.convertAndSend(url, message);
     }
 }
