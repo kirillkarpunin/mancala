@@ -1,9 +1,9 @@
 package com.bol.game.engine;
 
-import com.bol.game.engine.exception.GameEngineException;
 import com.bol.game.engine.model.GameConfiguration;
 import com.bol.game.engine.model.GameStatus;
 import com.bol.game.engine.model.SpaceRange;
+import com.bol.game.engine.validation.RequestValidator;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,17 +14,23 @@ import java.util.stream.Collectors;
 @Component
 public class GameEngineImpl implements GameEngine {
 
+    private final RequestValidator requestValidator;
+
+    public GameEngineImpl(RequestValidator requestValidator) {
+        this.requestValidator = requestValidator;
+    }
+
     @Override
     public GameConfiguration createGameConfiguration(
             UUID userId, int pitsPerPlayer, int stonesPerPit, boolean isStealingAllowed, boolean isMultipleTurnAllowed
     ) {
-        // TODO: validate arguments
+        requestValidator.validateCreateGameRequest(pitsPerPlayer, stonesPerPit);
         return new GameConfiguration(userId, pitsPerPlayer, stonesPerPit, isStealingAllowed, isMultipleTurnAllowed);
     }
 
     @Override
     public void turn(int playerIndex, int spaceIndex, GameConfiguration game) {
-        validateTurnRequest(playerIndex, spaceIndex, game);
+        requestValidator.validateTurnRequest(playerIndex, spaceIndex, game);
 
         var stones = pickUpStones(spaceIndex, game.getBoard());
         var lastInsertedPitIndex = sowStones(playerIndex, stones, spaceIndex, game);
@@ -51,35 +57,6 @@ public class GameEngineImpl implements GameEngine {
         return stones;
     }
 
-    private static void validateTurnRequest(int playerIndex, int spaceIndex, GameConfiguration game) {
-        var gameStatus = game.getStatus();
-        if (!gameStatus.equals(GameStatus.ACTIVE)) {
-            var msg = "Game is not active: gameStatus=%s".formatted(gameStatus);
-            throw new GameEngineException(msg);
-        }
-
-        var expectedPlayerIndex = game.getCurrentPlayerIndex();
-        if (!(expectedPlayerIndex == playerIndex)) {
-            var msg = "Turn request by the wrong player:expectedPlayer=%s, actualPlayer=%s"
-                    .formatted(expectedPlayerIndex, playerIndex);
-            throw new GameEngineException(msg);
-        }
-
-        var spaceRange = game.getPlayerSpaceRange(playerIndex);
-        var firstPitIndex = spaceRange.firstPitIndex();
-        var lastPitIndex = spaceRange.lastPitIndex();
-        if (spaceIndex < firstPitIndex || spaceIndex > lastPitIndex) {
-            var msg = "Selected space index is now allowed: selectedPitIndex=%d, allowedIndexRange=[%d,%d]"
-                    .formatted(spaceIndex, firstPitIndex, lastPitIndex);
-            throw new GameEngineException(msg);
-        }
-
-        var stonesInSelectedPit = game.getBoard()[spaceIndex];
-        if (stonesInSelectedPit == 0) {
-            var msg = "Selected pit is empty: selectedPitIndex=%d".formatted(spaceIndex);
-            throw new GameEngineException(msg);
-        }
-    }
 
     private static int pickUpStones(int pitIndex, int[] board) {
         var stones = board[pitIndex];
