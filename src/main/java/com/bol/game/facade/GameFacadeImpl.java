@@ -49,6 +49,9 @@ public class GameFacadeImpl implements GameFacade {
 
     private static GameMessage toMessage(Game game) {
         var state = game.getState();
-        return new GameMessage(game.getId(), state.getStatus());
+        return new GameMessage(
+                game.getId(), state.getStatus(), state.getBoard(), state.getPlayers(),
+                state.getCurrentPlayerIndex(), state.getWinnerIndex()
+        );
     }
 }

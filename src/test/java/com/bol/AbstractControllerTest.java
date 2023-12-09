@@ -60,7 +60,7 @@ public class AbstractControllerTest {
         httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token));
 
         var url = "http://localhost:%s/api/v1/games".formatted(port);
-        var requestBody = new CreateGameDto(6, 4, true, true);
+        var requestBody = new CreateGameDto(4, 4, true, true);
         var request = new HttpEntity<>(requestBody, httpHeaders);
 
         return restTemplate.exchange(url, HttpMethod.POST, request, GameDto.class);
