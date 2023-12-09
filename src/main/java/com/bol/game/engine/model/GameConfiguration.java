@@ -1,5 +1,9 @@
 package com.bol.game.engine.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +45,24 @@ public class GameConfiguration {
         addPlayer(userId);
     }
 
+    @JsonCreator
+    public GameConfiguration(
+            int pitsPerPlayer, int spacesPerPlayer, int stonesPerPit, int[] board, List<Player> players,
+            boolean isStealingAllowed, boolean isMultipleTurnAllowed, int currentPlayerIndex, Integer winnerIndex,
+            GameStatus status
+    ) {
+        this.pitsPerPlayer = pitsPerPlayer;
+        this.spacesPerPlayer = spacesPerPlayer;
+        this.stonesPerPit = stonesPerPit;
+        this.board = board;
+        this.players = players;
+        this.isStealingAllowed = isStealingAllowed;
+        this.isMultipleTurnAllowed = isMultipleTurnAllowed;
+        this.currentPlayerIndex = currentPlayerIndex;
+        this.winnerIndex = winnerIndex;
+        this.status = status;
+    }
+
     public void addPlayer(UUID userId) {
         var playerIndex = players.size();
         var firstPitIndex = playerIndex * spacesPerPlayer;
@@ -64,10 +86,12 @@ public class GameConfiguration {
     }
 
 
+    @JsonProperty("isStealingAllowed")
     public boolean isStealingAllowed() {
         return isStealingAllowed;
     }
 
+    @JsonProperty("isMultipleTurnAllowed")
     public boolean isMultipleTurnAllowed() {
         return isMultipleTurnAllowed;
     }
@@ -84,6 +108,7 @@ public class GameConfiguration {
         return players;
     }
 
+    @JsonIgnore
     public List<SpaceRange> getPlayerSpaces() {
         return players.stream()
                 .map(Player::spaceRange)
@@ -96,6 +121,18 @@ public class GameConfiguration {
         var spaces = getPlayerSpaces();
         spaces.remove(playerIndex);
         return spaces;
+    }
+
+    public int getPitsPerPlayer() {
+        return pitsPerPlayer;
+    }
+
+    public int getSpacesPerPlayer() {
+        return spacesPerPlayer;
+    }
+
+    public int getStonesPerPit() {
+        return stonesPerPit;
     }
 
     public int getCurrentPlayerIndex() {

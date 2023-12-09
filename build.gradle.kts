@@ -24,8 +24,7 @@ dependencies {
     implementation ("org.springframework.boot:spring-boot-starter-validation")
     implementation ("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
-    // TODO: clean up
-    implementation ("com.vladmihalcea:hibernate-types-60:2.21.1")
+    implementation ("io.hypersistence:hypersistence-utils-hibernate-62:3.6.1")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

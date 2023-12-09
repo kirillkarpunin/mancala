@@ -1,15 +1,13 @@
 package com.bol.game;
 
 import com.bol.game.engine.model.GameConfiguration;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -21,9 +19,7 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    // TODO: clean up
     @Type(JsonType.class)
-    @JdbcTypeCode(SqlTypes.JSON)
     private GameConfiguration configuration;
 
     public Game() {
