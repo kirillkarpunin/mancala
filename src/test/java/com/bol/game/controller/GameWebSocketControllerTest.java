@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -32,18 +33,20 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
     public void shouldConnectToWebSocket() throws ExecutionException, InterruptedException, TimeoutException {
         // Create game
         var firstUser = registerUser();
-        var game = sendCreateGameRequest(firstUser.token()).getBody();
+        var firstUserToken = firstUser.token();
+        var game = sendCreateGameRequest(firstUserToken).getBody();
         var gameId = game.id();
 
         var client = prepareWebSocketClient();
 
         var firstMessageQueue = new ArrayBlockingQueue<GameMessage>(1);
-        var firstSession = connect(client, gameId, firstMessageQueue);
+        var firstSession = connect(client, firstUserToken, gameId, firstMessageQueue);
 
         var secondUser = registerUser();
+        var secondUserToken = secondUser.token();
         var secondMessageQueue = new ArrayBlockingQueue<GameMessage>(1);
-        var secondSession = connect(client, gameId, secondMessageQueue);
-        sendJoinGameRequest(secondUser.token(), gameId);
+        var secondSession = connect(client, secondUserToken, gameId, secondMessageQueue);
+        sendJoinGameRequest(secondUserToken, gameId);
 
         // Join game
         Consumer<GameMessage> assertFunction = msg -> {
@@ -60,7 +63,7 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
 
         // First turn
         var sendUrl = "/app/game.%s".formatted(gameId);
-        firstSession.send(sendUrl, new RequestTurnDto(firstUser.id(), 2));
+        firstSession.send(sendUrl, new RequestTurnDto(2));
         assertFunction = msg -> {
             assertEquals(gameId, msg.id());
             assertEquals(GameStatus.ACTIVE, msg.status());
@@ -75,7 +78,7 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
         assertFunction.accept(message);
 
         // Second turn
-        secondSession.send(sendUrl, new RequestTurnDto(secondUser.id(), 8));
+        secondSession.send(sendUrl, new RequestTurnDto(8));
         assertFunction = msg -> {
             assertEquals(gameId, msg.id());
             assertEquals(GameStatus.ACTIVE, msg.status());
@@ -97,9 +100,13 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
         return client;
     }
 
-    private StompSession connect(WebSocketStompClient client, UUID gameId, BlockingQueue<GameMessage> queue) throws ExecutionException, InterruptedException, TimeoutException {
+    private StompSession connect(WebSocketStompClient client, String token, UUID gameId, BlockingQueue<GameMessage> queue) throws ExecutionException, InterruptedException, TimeoutException {
         var url = "ws://localhost:%d/websocket".formatted(port);
-        var session = client.connectAsync(url, new StompSessionHandlerAdapter() {
+
+        var httpHeaders = prepareHttpHeaders(token);
+        var webSocketHttpHeaders = new WebSocketHttpHeaders(httpHeaders);
+
+        var session = client.connectAsync(url, webSocketHttpHeaders, new StompSessionHandlerAdapter() {
                 })
                 .get(1, SECONDS);
 

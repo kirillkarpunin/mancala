@@ -56,8 +56,7 @@ public class AbstractControllerTest {
     }
 
     protected ResponseEntity<GameDto> sendCreateGameRequest(String token) {
-        var httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token));
+        var httpHeaders = prepareHttpHeaders(token);
 
         var url = "http://localhost:%s/api/v1/games".formatted(port);
         var requestBody = new CreateGameDto(4, 4, true, true);
@@ -67,12 +66,17 @@ public class AbstractControllerTest {
     }
 
     protected ResponseEntity<GameDto> sendJoinGameRequest(String token, UUID gameId) {
-        var httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token));
+        var httpHeaders = prepareHttpHeaders(token);
 
         var url = "http://localhost:%s/api/v1/games/%s/join".formatted(port, gameId);
         var request = new HttpEntity<>(httpHeaders);
 
         return restTemplate.exchange(url, HttpMethod.POST, request, GameDto.class);
+    }
+
+    protected static HttpHeaders prepareHttpHeaders(String token) {
+        var httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(token));
+        return httpHeaders;
     }
 }

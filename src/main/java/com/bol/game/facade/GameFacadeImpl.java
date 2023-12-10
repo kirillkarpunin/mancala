@@ -35,8 +35,8 @@ public class GameFacadeImpl implements GameFacade {
     }
 
     @Override
-    public void requestTurn(UUID gameId, RequestTurnDto body) {
-        var game = gameService.requestTurn(gameId, body);
+    public void requestTurn(UUID userId, UUID gameId, RequestTurnDto body) {
+        var game = gameService.requestTurn(userId, gameId, body);
         var message = toMessage(game);
 
         messageService.sendGameStateUpdated(message);

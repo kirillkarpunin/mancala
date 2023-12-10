@@ -67,7 +67,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     @Transactional
-    public Game requestTurn(UUID gameId, RequestTurnDto body) {
+    public Game requestTurn(UUID userId, UUID gameId, RequestTurnDto body) {
         var game = lockGameById(gameId);
         var state = game.getState();
         var status = state.getStatus();
@@ -75,7 +75,6 @@ public class GameServiceImpl implements GameService {
             throw ApplicationException.badRequest("Game is not in active state: gameId=%s, gameStatus=%s".formatted(gameId, status));
         }
 
-        var userId = body.userId();
         var playerIndex = getPlayerIndex(userId, state)
                 .orElseThrow(() -> ApplicationException.badRequest("User is not a player: gameId=%s, userId=%s".formatted(gameId, userId)));
 

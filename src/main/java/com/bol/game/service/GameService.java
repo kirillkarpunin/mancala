@@ -12,5 +12,5 @@ public interface GameService {
 
     Game joinGame(UUID userId, UUID gameId);
 
-    Game requestTurn(UUID gameId, RequestTurnDto body);
+    Game requestTurn(UUID userId, UUID gameId, RequestTurnDto body);
 }

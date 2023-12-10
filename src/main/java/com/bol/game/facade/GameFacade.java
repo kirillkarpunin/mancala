@@ -12,5 +12,5 @@ public interface GameFacade {
 
     GameDto joinGame(UUID userId, UUID gameId);
 
-    void requestTurn(UUID gameId, RequestTurnDto message);
+    void requestTurn(UUID userId, UUID gameId, RequestTurnDto message);
 }

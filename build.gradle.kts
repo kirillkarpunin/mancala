@@ -34,7 +34,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.19.3")
     testImplementation("org.testcontainers:postgresql:1.19.3")
     testImplementation("org.testcontainers:postgresql:1.19.3")
-    testImplementation("org.awaitility:awaitility:4.2.0")
 }
 
 checkstyle {
