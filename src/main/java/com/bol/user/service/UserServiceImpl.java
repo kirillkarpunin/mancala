@@ -39,10 +39,10 @@ public class UserServiceImpl implements UserService {
     public User loginUser(LoginDto body) {
         var username = body.username();
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> ApplicationException.badRequest("User is not found: username=%s".formatted(username)));
+                .orElseThrow(() -> ApplicationException.badRequest("User is not found"));
 
         if (!passwordEncoder.matches(body.password(), user.getPassword())) {
-            throw ApplicationException.badRequest("Invalid password: username=%s".formatted(username));
+            throw ApplicationException.badRequest("Invalid password");
         }
 
         return user;

@@ -1,6 +1,7 @@
 package com.bol.user.controller;
 
 import com.bol.AbstractControllerTest;
+import com.bol.exception.ErrorResponse;
 import com.bol.user.dto.request.LoginDto;
 import com.bol.user.dto.request.RegisterDto;
 import com.bol.user.dto.response.UserDto;
@@ -26,8 +27,12 @@ class UserRestControllerTest extends AbstractControllerTest {
     public void shouldFailWhenRegisterUserWithInvalidUsername(String username) {
         var url = "http://localhost:%s/api/v1/auth/register".formatted(port);
         var request = new RegisterDto(username, RandomString.make(8));
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("Invalid value in 'username' field: must not be blank");
     }
 
     @Test
@@ -37,8 +42,12 @@ class UserRestControllerTest extends AbstractControllerTest {
 
         var url = "http://localhost:%s/api/v1/auth/register".formatted(port);
         var request = new RegisterDto(username, RandomString.make(8));
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("Username is already taken");
     }
 
     @ParameterizedTest(name = "should fail when register user with password [{0}]")
@@ -47,8 +56,12 @@ class UserRestControllerTest extends AbstractControllerTest {
     public void shouldFailWhenRegisterUserWithInvalidPassword(String password) {
         var url = "http://localhost:%s/api/v1/auth/register".formatted(port);
         var request = new RegisterDto(RandomString.make(8), password);
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("Invalid value in 'password' field: must not be blank");
     }
 
     @Test
@@ -72,8 +85,12 @@ class UserRestControllerTest extends AbstractControllerTest {
     public void shouldFailWhenLoginUserWithInvalidUsername(String username) {
         var url = "http://localhost:%s/api/v1/auth/login".formatted(port);
         var request = new LoginDto(username, RandomString.make(8));
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("Invalid value in 'username' field: must not be blank");
     }
 
     @ParameterizedTest(name = "should fail when login user with password [{0}]")
@@ -82,16 +99,24 @@ class UserRestControllerTest extends AbstractControllerTest {
     public void shouldFailWhenLoginUserWithInvalidPassword(String password) {
         var url = "http://localhost:%s/api/v1/auth/login".formatted(port);
         var request = new LoginDto(RandomString.make(8), password);
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("Invalid value in 'password' field: must not be blank");
     }
 
     @Test
     public void shouldFailWhenLoginUserThatDoesNotExist() {
         var url = "http://localhost:%s/api/v1/auth/login".formatted(port);
         var request = new LoginDto(RandomString.make(8), RandomString.make(8));
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("User is not found");
     }
 
     @Test
@@ -101,7 +126,11 @@ class UserRestControllerTest extends AbstractControllerTest {
 
         var url = "http://localhost:%s/api/v1/auth/login".formatted(port);
         var request = new LoginDto(username, RandomString.make(8));
-        var response = restTemplate.postForEntity(url, request, UserDto.class);
+        var response = restTemplate.postForEntity(url, request, ErrorResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        var body = response.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.message()).isEqualTo("Invalid password");
     }
 }

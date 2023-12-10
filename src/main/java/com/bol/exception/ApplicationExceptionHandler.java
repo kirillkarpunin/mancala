@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.stream.Collectors;
+
 @ControllerAdvice
 public class ApplicationExceptionHandler {
 
@@ -16,7 +18,13 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         LOGGER.error("Method argument is not valid", ex);
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+
+        var msg = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> "Invalid value in '%s' field: %s".formatted(error.getField(), error.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
+
+
+        return buildResponse(HttpStatus.BAD_REQUEST, msg);
     }
 
     @ExceptionHandler(ApplicationException.class)
