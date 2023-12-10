@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public record GameMessage(
         @NotNull UUID id,
+        @NotNull Integer pitsPerPlayer,
         @NotNull GameStatus status,
         @NotNull int[] board,
         @NotNull List<Player> players,
