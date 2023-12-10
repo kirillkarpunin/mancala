@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Game</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+<div id="auth-page" class="page active">
+    <div class="form-wrapper active">
+        <h1>Sign In</h1>
+        <form id="loginForm">
+            <p class="error"></p>
+            <input class="username" type="text" name="username" placeholder="Enter username"/>
+            <input class="password" type="password" name="password" placeholder="Password"/>
+        </form>
+        <button id="loginButton">Sign in</button>
+        <div class="toggle-form">
+            <span>Not a member?</span>
+            <a href="#" class="toggle-form-link">Register Now</a>
+        </div>
+    </div>
+
+    <div class="form-wrapper">
+        <h1>Sign Up</h1>
+        <form id="registrationForm">
+            <p class="error"></p>
+            <input class="username" type="text" name="username" placeholder="Enter username"/>
+            <input class="password" type="password" name="password" placeholder="Password"/>
+        </form>
+        <button id="registerButton">Sign up</button>
+        <div class="toggle-form">
+            <span>Already have an account?</span>
+            <a href="#" class="toggle-form-link">Sign In</a>
+        </div>
+    </div>
+</div>
+<div id="menu-page" class="page">
+    <div class="menu-wrapper">
+        <div>
+            <form id="createGameForm">
+                <div>
+                    <div class="input-wrapper">
+                        <label for="pitsPerPlayer">Pits per player: <span id="pitsPerPlayerHolder"></span></label>
+                        <input type="range" id="pitsPerPlayer" name="pitsPerPlayer" min="4" max="8"/>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="stonesPerPit">Stones per pit: <span id="stonesPerPitHolder"></span></label>
+                        <input type="range" id="stonesPerPit" name="stonesPerPit" min="2" max="6"/>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="isStealingAllowed">Stealing is allowed</label>
+                        <input type="checkbox" id="isStealingAllowed" name="isStealingAllowed" checked/>
+                    </div>
+                    <div class="input-wrapper">
+                        <label for="isMultipleTurnAllowed">Multiple turns are allowed</label>
+                        <input type="checkbox" id="isMultipleTurnAllowed" name="isMultipleTurnAllowed" checked/>
+                    </div>
+                </div>
+            </form>
+            <button id="createGameButton">Create game</button>
+        </div>
+        <p id="menu-divider">OR</p>
+        <div>
+            <form id="joinGameForm">
+                <input type="text" name="gameId" placeholder="Game ID"/>
+            </form>
+            <button id="joinGameButton">Join game</button>
+        </div>
+    </div>
+</div>
+<div id="waiting-room-page" class="page">
+    <div id="waiting-room-wrapper">
+        <p>Waiting for other players to join.</p>
+        <p>Game ID: <span id="gameIdHolder"></span></p>
+    </div>
+</div>
+<div id="game-page" class="page">
+    <div id="board-wrapper">
+        <div id="player-1-tag" class="player-tag">Player 2 <span id="player-1-winner" class="winner-tag">(winner)</span>
+        </div>
+        <div id="board">
+            <div id="player-1-store" class="storeHolder"></div>
+            <div>
+                <div id="player-1-pits" class="pits"></div>
+                <div id="player-0-pits" class="pits active"></div>
+            </div>
+            <div id="player-0-store" class="storeHolder active"></div>
+        </div>
+        <div id="player-0-tag" class="player-tag active">Player 1 <span id="player-0-winner"
+                                                                        class="winner-tag">(winner)</span></div>
+    </div>
+</div>
+<script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background: #dfe9f5;
+}
+
+.page:not(.active) {
+    display: none;
+}
+
+.form-wrapper {
+    width: 330px;
+    padding: 2rem 0 1rem 0;
+    margin: 50px auto;
+    background: #fff;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.form-wrapper:not(.active) {
+    display: none;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #07001f;
+    margin-bottom: 1.7rem;
+}
+
+p.error {
+    margin: 1.2rem;
+}
+
+form input[type="text"], form input[type="password"] {
+    width: 85%;
+    outline: none;
+    border: none;
+    background: #dfe9f5;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+
+button {
+    font-size: 1.1rem;
+    padding: 8px 0;
+    outline: none;
+    border: none;
+    width: 85%;
+    background: cornflowerblue;
+    color: #fff;
+    cursor: pointer;
+}
+
+.form-wrapper button {
+    margin-top: 1rem;
+    border-radius: 5px;
+}
+
+.form-wrapper input[type="text"], .form-wrapper input[type="password"], .menu-wrapper input[type="text"] {
+    border-radius: 10px;
+}
+
+#createGameButton, #joinGameButton {
+    border-radius: 5px;
+}
+
+.menu-wrapper {
+    width: 330px;
+    padding: 2rem 0 2rem 0;
+    margin: 50px auto;
+    background: #fff;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#waiting-room-wrapper {
+    width: 440px;
+    padding: 2rem 30px;
+    margin: 50px auto;
+    background: #fff;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+button:hover {
+    background: rgba(42, 65, 148, 0.767);
+}
+
+.toggle-form {
+    font-size: 0.8rem;
+    margin-top: 1.4rem;
+}
+
+.toggle-form a {
+    color: cornflowerblue;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.error {
+    font-size: 0.8rem;
+    color: rgb(239, 132, 113);
+}
+
+#player-0-pits .pit {
+    background-color: rgba(100, 149, 237, 0.17);
+}
+
+#player-0-pits.active .pit {
+    background-color: #6495ed87;
+}
+
+#player-0-store .store {
+    background-color: rgba(100, 149, 237, 0.17);
+}
+
+#player-0-store.active .store {
+    background-color: #6495ed87;
+}
+
+#player-1-pits .pit {
+    background-color: rgba(180, 169, 245, 0.33);
+}
+
+#player-1-pits.active .pit {
+    background-color: #b4a9f5d1;
+}
+
+#player-1-store .store {
+    background-color: rgba(180, 169, 245, 0.33);
+}
+
+#player-1-store.active .store {
+    background-color: #b4a9f5d1;
+}
+
+.storeHolder {
+    display: flex;
+    align-items: center;
+}
+
+#board {
+    display: flex;
+    align-items: center;
+}
+
+.pits {
+    display: flex;
+}
+
+#player-1-pits {
+    flex-direction: row-reverse;
+}
+
+.pit {
+    width: 5em;
+    margin: 0.5em;
+    border-radius: 10px;
+    height: 5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.store {
+    width: 6em;
+    margin: 0.5em;
+    border-radius: 10px;
+    height: 12em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.pit.clickable {
+    cursor: pointer;
+}
+
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 20px;
+    background: #dfe9f5;
+    background-size: 150px 10px;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: cornflowerblue;
+    position: relative;
+    z-index: 3;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+#createGameForm div {
+    padding: 0 12px;
+}
+
+#createGameForm .input-wrapper {
+    height: 2em;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+#createGameForm .input-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+#menu-divider {
+    margin: 2em 0;
+}
+
+#board-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 640px;
+    padding: 2rem;
+    margin: 50px auto;
+    background: #fff;
+    border-radius: 10px;
+}
+
+.player-tag.active {
+    font-weight: bold;
+}
+
+.winner-tag:not(.active) {
+    display: none;
+}
