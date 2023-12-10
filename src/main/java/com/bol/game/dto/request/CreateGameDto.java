@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateGameDto(
         @NotNull @Min(1) Integer pitsPerPlayer,
-        @NotNull @Min(1) Integer stonesPerSpace,
+        @NotNull @Min(1) Integer stonesPerPit,
         @NotNull Boolean isStealingAllowed,
         @NotNull Boolean isMultipleTurnAllowed
 ) {

@@ -28,7 +28,7 @@ public class GameServiceImpl implements GameService {
     public Game createGame(UUID userId, CreateGameDto body) {
         var state = gameEngine.createGame(
                 body.pitsPerPlayer(),
-                body.stonesPerSpace(),
+                body.stonesPerPit(),
                 body.isStealingAllowed(),
                 body.isMultipleTurnAllowed()
         );
