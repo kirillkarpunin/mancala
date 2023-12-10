@@ -10,8 +10,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
     public static final String WEBSOCKET_PATH = "/websocket";
-    public static final String APP_DESTINATION_PATH = "/app";
-    public static final String TOPIC_DESTINATION_PATH_PREFIX = "/v1/topic";
+    public static final String APP_DESTINATION_PATH_PREFIX = "/app/v1";
+    public static final String TOPIC_DESTINATION_PATH_PREFIX = "/topic/v1";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -20,7 +20,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes(APP_DESTINATION_PATH)
+        registry.setApplicationDestinationPrefixes(APP_DESTINATION_PATH_PREFIX)
                 .enableSimpleBroker(TOPIC_DESTINATION_PATH_PREFIX);
     }
 }

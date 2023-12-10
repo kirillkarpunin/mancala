@@ -23,6 +23,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static com.bol.message.configuration.WebSocketConfiguration.APP_DESTINATION_PATH_PREFIX;
+import static com.bol.message.configuration.WebSocketConfiguration.WEBSOCKET_PATH;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,7 +64,7 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
         assertFunction.accept(message);
 
         // First turn
-        var sendUrl = "/app/game.%s".formatted(gameId);
+        var sendUrl = "%s/game.%s".formatted(APP_DESTINATION_PATH_PREFIX, gameId);
         firstSession.send(sendUrl, new RequestTurnDto(2));
         assertFunction = msg -> {
             assertEquals(gameId, msg.id());
@@ -101,7 +103,7 @@ class GameWebSocketControllerTest extends AbstractControllerTest {
     }
 
     private StompSession connect(WebSocketStompClient client, String token, UUID gameId, BlockingQueue<GameMessage> queue) throws ExecutionException, InterruptedException, TimeoutException {
-        var url = "ws://localhost:%d/websocket".formatted(port);
+        var url = "ws://localhost:%d%s".formatted(port, WEBSOCKET_PATH);
 
         var httpHeaders = prepareHttpHeaders(token);
         var webSocketHttpHeaders = new WebSocketHttpHeaders(httpHeaders);
