@@ -1,0 +1,35 @@
+version: '3'
+services:
+  mancala-postgres:
+    image: "postgres:15-alpine"
+    container_name: mancala-postgres
+    volumes:
+      - mancala-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=mancala_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  mancala-app:
+    build: .
+    container_name: mancala-app
+    ports:
+      - 8080:8080
+    links:
+      - mancala-postgres
+    environment:
+      - DB_HOST=mancala-postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+
+  mancala-ui:
+    build: ./ui
+    container_name: mancala-ui
+    ports:
+      - 3000:80
+    links:
+      - mancala-app
+volumes:
+  mancala-data:
