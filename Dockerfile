@@ -1,16 +1,35 @@
-FROM gradle:jdk19 AS build
+FROM gradle:jdk19-alpine AS builder
 
-COPY src/main ./src/main
+WORKDIR /build
 
-COPY build.gradle.kts settings.gradle.kts  ./
+RUN adduser -S myuser
 
-COPY checkstyle ./checkstyle
+COPY src/main /build/src/main
+COPY build.gradle.kts settings.gradle.kts  /build
+COPY checkstyle /build/checkstyle
 
-RUN gradle clean build
+RUN chown -R myuser /build
+USER myuser
 
-FROM openjdk:19-jdk-oracle AS run
+RUN gradle clean build --no-daemon && rm -rf .gradle
 
-COPY --from=build /home/gradle/build/libs/mancala-game-1.0-SNAPSHOT.jar app.jar
+#
+
+FROM openjdk:19-jdk-alpine
+
+WORKDIR /app
+
 EXPOSE 8080
+
+ENV DB_HOST=mancala-postgres
+ENV DB_USER=postgres
+ENV DB_PASSWORD=postgres
+
+RUN adduser -S myuser
+
+COPY --from=builder /build/build/libs/mancala-game-1.0-SNAPSHOT.jar /app/app.jar
+
+RUN chown -R myuser /app
+USER myuser
 
 CMD ["java", "-jar", "app.jar"]
