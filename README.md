@@ -33,7 +33,7 @@ $ docker-compose down
 
 В Dockerfile сервера *(./Dockerfile)* используется multistage-сборка: в окружении gradle:jdk-19-alpine с помощью инструмента сборки _Gradle_ собирается .jar файл, который затем перемещается в окружение openjdk:jdk19-alpine.
 
-В Dockerfile сервера *(./ui/Dockerfile)* файлы сайта перемещаются в соответствующую папку _Nginx_.
+В Dockerfile клиента *(./ui/Dockerfile)* файлы сайта перемещаются в соответствующую папку _Nginx_.
 
 В docker-compose.yml установлен порядок запуска контейнеров, а также указаны открываемые порты и переменные окружения.
 
