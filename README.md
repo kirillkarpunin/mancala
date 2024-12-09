@@ -1,25 +1,49 @@
-## Mancala Game
+## Лабораторная работа. Настольная игра Манкала
 
-### Prerequisites
+Для запуска приложения потребуется установить **Docker** и **Docker Compose**.
 
-In order to run this application you need to install **Docker** & **Docker Compose**.
+### Запуск
 
-### How to run it?
-
-Application can be run with the following command:
+Приложение запускается следующей командой:
 
 ```
 $ docker-compose up -d
 ```
 
-After the start up application will be available on http://localhost:3000.
+После запуска приложение доступно на http://localhost:3000.
 
-OpenAPI documentation is available on http://localhost:8080/swagger-ui/index.html.
+OpenAPI документация доступна на http://localhost:8080/swagger-ui/index.html.
 
 ---
 
-Use the following command to stop application:
+Следующая команда останавливает приложение:
 
 ```
 $ docker-compose down
 ```
+
+### Описание
+
+Приложение состоит из:
+- Серверной части
+- Клиентской части
+- Базы данных
+
+---
+
+В Dockerfile сервера *(./Dockerfile)* используется multistage-сборка: в окружении gradle:jdk-19-alpine с помощью инструмента сборки _Gradle_ собирается .jar файл, который затем перемещается в окружение openjdk:jdk19-alpine.
+
+В Dockerfile клиента *(./ui/Dockerfile)* файлы сайта перемещаются в соответствующую папку _Nginx_.
+
+В docker-compose.yml установлен порядок запуска контейнеров, а также указаны открываемые порты и переменные окружения.
+
+---
+
+Для базы данных реализован мезанизм автоматических миграций с помощью инструмента _Flyway_.
+
+Для сохранения данных БД между перезапусками контейнера используется том. 
+
+### Автор
+Карпунин Кирилл
+
+ЛЭТИ гр. 2304
